@@ -30,7 +30,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserRepository userRepository;
 
     @Override
-    public TransactionResponse addTransaction(TransactionRequest transactionRequest) {
+    public TransactionResponse createTransaction(TransactionRequest transactionRequest) {
         log.info("New Transaction for user {}", transactionRequest.getUserId());
         Category category = categoryRepository.findByName(transactionRequest.getCategory().toUpperCase())
                 .orElseThrow(() -> new NotFoundException("Category " + transactionRequest.getCategory() + " not found"));

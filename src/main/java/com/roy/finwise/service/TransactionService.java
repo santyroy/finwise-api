@@ -5,5 +5,5 @@ import com.roy.finwise.dto.TransactionResponse;
 
 public interface TransactionService {
 
-    TransactionResponse addTransaction(TransactionRequest transactionRequest);
+    TransactionResponse createTransaction(TransactionRequest transactionRequest);
 }

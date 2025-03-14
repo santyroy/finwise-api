@@ -20,8 +20,8 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping
-    public ResponseEntity<TransactionResponse> addTransaction(@Valid @RequestBody TransactionRequest request) {
-        TransactionResponse transactionResponse = transactionService.addTransaction(request);
+    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
+        TransactionResponse transactionResponse = transactionService.createTransaction(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponse);
     }
 }
