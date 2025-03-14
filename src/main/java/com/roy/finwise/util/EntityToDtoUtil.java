@@ -12,7 +12,7 @@ public class EntityToDtoUtil {
                 .id(transaction.getId())
                 .type(transaction.getType())
                 .amount(transaction.getAmount())
-                .category(transaction.getCategory())
+                .category(transaction.getCategory().getName())
                 .description(transaction.getDescription())
                 .tags(transaction.getTags())
                 .build();

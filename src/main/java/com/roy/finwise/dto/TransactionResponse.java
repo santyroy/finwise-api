@@ -1,6 +1,5 @@
 package com.roy.finwise.dto;
 
-import com.roy.finwise.entity.Category;
 import com.roy.finwise.entity.TransactionType;
 import lombok.*;
 
@@ -18,7 +17,7 @@ public class TransactionResponse {
     private UUID id;
     private TransactionType type;
     private BigDecimal amount;
-    private Category category;
+    private String category;
     private String description;
     private Set<String> tags;
 }
