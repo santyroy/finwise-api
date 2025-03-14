@@ -3,10 +3,7 @@ package com.roy.finwise.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -36,15 +33,18 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<Transaction> transactions = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+    private Set<Category> categories = new HashSet<>();
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(mobileNumber, user.mobileNumber) && Objects.equals(transactions, user.transactions);
+        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(mobileNumber, user.mobileNumber) && Objects.equals(transactions, user.transactions) && Objects.equals(categories, user.categories);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, password, mobileNumber, transactions);
+        return Objects.hash(id, name, email, password, mobileNumber, transactions, categories);
     }
 }
