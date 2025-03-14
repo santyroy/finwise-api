@@ -1,6 +1,7 @@
 package com.roy.finwise.util;
 
 import com.roy.finwise.dto.TransactionRequest;
+import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.entity.Category;
 import com.roy.finwise.entity.Transaction;
 import com.roy.finwise.entity.TransactionType;
@@ -21,6 +22,15 @@ public class DtoToEntityUtil {
                 .description(transactionRequest.getDescription())
                 .tags(transactionRequest.getTags())
                 .user(user)
+                .build();
+    }
+
+    public static User userDtoToEntity(UserRequest userRequest) {
+        return User.builder()
+                .name(userRequest.getName())
+                .email(userRequest.getEmail())
+                .password(userRequest.getPassword())
+                .mobileNumber(userRequest.getMobileNumber())
                 .build();
     }
 }

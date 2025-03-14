@@ -41,6 +41,6 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction newTransaction = DtoToEntityUtil.transactionDtoToEntity(transactionRequest, category, user);
         Transaction savedTransaction = transactionRepository.save(newTransaction);
         log.info("Transaction saved with ID: {}", savedTransaction.getId());
-        return EntityToDtoUtil.TransactionEntityToDto(savedTransaction);
+        return EntityToDtoUtil.transactionEntityToDto(savedTransaction);
     }
 }
