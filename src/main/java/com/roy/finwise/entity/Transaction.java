@@ -30,8 +30,8 @@ public class Transaction {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    @Enumerated(EnumType.STRING)
-    private TransactionCategory category;
+    @OneToOne
+    private Category category;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -41,7 +41,7 @@ public class Transaction {
     private String description;
 
     @ElementCollection
-    @CollectionTable(name= "transaction_tags", joinColumns = @JoinColumn(name = "transaction_id"))
+    @CollectionTable(name = "transaction_tags", joinColumns = @JoinColumn(name = "transaction_id"))
     private Set<String> tags = new HashSet<>();
 
     @ManyToOne
@@ -52,7 +52,7 @@ public class Transaction {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return Objects.equals(id, that.id) && type == that.type && Objects.equals(amount, that.amount) && category == that.category && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt) && Objects.equals(description, that.description) && Objects.equals(tags, that.tags) && Objects.equals(user, that.user);
+        return Objects.equals(id, that.id) && type == that.type && Objects.equals(amount, that.amount) && Objects.equals(category, that.category) && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt) && Objects.equals(description, that.description) && Objects.equals(tags, that.tags) && Objects.equals(user, that.user);
     }
 
     @Override
