@@ -1,7 +1,7 @@
 package com.roy.finwise.dto;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.Set;
 @Setter
 public class TransactionRequest {
 
-    @NotNull(message = "Transaction type is mandatory")
+    @NotBlank(message = "Transaction type is mandatory")
     @Pattern(regexp = "(CREDIT|DEBIT)", message = "Transaction should be either DEBIT or CREDIT")
     private String type;
 
@@ -28,6 +28,6 @@ public class TransactionRequest {
     private String description;
     private Set<String> tags;
 
-    @NotNull(message = "UserId is mandatory")
+    @NotBlank(message = "UserId is mandatory")
     private String userId;
 }
