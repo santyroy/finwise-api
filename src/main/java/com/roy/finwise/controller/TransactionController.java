@@ -22,6 +22,13 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponse);
     }
 
+    @PutMapping("{transactionId}")
+    public ResponseEntity<TransactionResponse> updateTransactionById(@PathVariable String transactionId,
+                                                                     @Valid @RequestBody TransactionRequest request) {
+        TransactionResponse transactionResponse = transactionService.updateTransaction(transactionId, request);
+        return ResponseEntity.ok(transactionResponse);
+    }
+
     @DeleteMapping("{transactionId}")
     public ResponseEntity<String> deleteTransactionById(@PathVariable String transactionId) {
         transactionService.deleteTransaction(transactionId);
