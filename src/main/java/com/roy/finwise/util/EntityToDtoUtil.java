@@ -20,6 +20,7 @@ public class EntityToDtoUtil {
 
     public static UserResponse userEntityToDto(User user) {
         return UserResponse.builder()
+                .userId(user.getId().toString())
                 .name(user.getName())
                 .email(user.getEmail())
                 .mobileNumber(user.getMobileNumber())
