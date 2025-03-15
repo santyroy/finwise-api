@@ -10,6 +10,7 @@ import com.roy.finwise.service.UserService;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse createUser(UserRequest userRequest) {
@@ -88,7 +90,6 @@ public class UserServiceImpl implements UserService {
     }
 
     private String hashPassword(String password) {
-        // TODO: Add actual implementation
-        return password;
+        return passwordEncoder.encode(password);
     }
 }
