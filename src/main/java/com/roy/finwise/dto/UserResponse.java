@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 public class UserResponse {
+    private String userId;
     private String name;
     private String email;
     private String mobileNumber;
