@@ -41,12 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse findUserById(String userId) {
-        Optional<User> userOpt = userRepository.findById(UUID.fromString(userId));
-        if (userOpt.isEmpty()) {
-            log.error("User with ID: {} does not exist", userId);
-            throw new NotFoundException("User with ID: " + userId + " not found");
-        }
-        return MapperUtil.userEntityToDto(userOpt.get());
+        return MapperUtil.userEntityToDto(findById(userId));
     }
 
     @Override
@@ -82,6 +77,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email).orElseThrow(() -> {
             log.error("User with email: {} does not exist", email);
             return new NotFoundException("User with email: " + email + " not found");
+        });
+    }
+
+    protected User findById(String userId) {
+        return userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> {
+            log.error("User with ID: {} does not exist", userId);
+            return new NotFoundException("User with ID: " + userId + " not found");
         });
     }
 
