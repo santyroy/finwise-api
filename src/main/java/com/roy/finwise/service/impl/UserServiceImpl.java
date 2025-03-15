@@ -7,8 +7,7 @@ import com.roy.finwise.exceptions.NotFoundException;
 import com.roy.finwise.exceptions.UserAlreadyExistException;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.service.UserService;
-import com.roy.finwise.util.DtoToEntityUtil;
-import com.roy.finwise.util.EntityToDtoUtil;
+import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse createUser(UserRequest userRequest) {
         log.info("Creating user with email: {}", userRequest.getEmail());
-        User newUser = DtoToEntityUtil.userDtoToEntity(userRequest);
+        userRequest.setPassword(hashPassword(userRequest.getPassword()));
+        User newUser = MapperUtil.userDtoToEntity(userRequest);
         Optional<User> userOpt = userRepository.findByEmail(newUser.getEmail());
         if (userOpt.isPresent()) {
             log.error("User with email: {} already exist", userRequest.getEmail());
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
         }
         User savedUser = userRepository.save(newUser);
         log.info("User saved with ID: {}", savedUser.getId());
-        return EntityToDtoUtil.userEntityToDto(savedUser);
+        return MapperUtil.userEntityToDto(savedUser);
     }
 
     @Override
@@ -46,17 +46,31 @@ public class UserServiceImpl implements UserService {
             log.error("User with ID: {} does not exist", userId);
             throw new NotFoundException("User with ID: " + userId + " not found");
         }
-        return EntityToDtoUtil.userEntityToDto(userOpt.get());
+        return MapperUtil.userEntityToDto(userOpt.get());
     }
 
     @Override
     public UserResponse findUserByEmail(String email) {
-        return EntityToDtoUtil.userEntityToDto(findByEmail(email));
+        return MapperUtil.userEntityToDto(findByEmail(email));
     }
 
     @Override
     public UserResponse updateUserByEmail(String email, UserRequest userRequest) {
-        return null;
+        User existingUser = findByEmail(email);
+        if (userRequest.getName() != null) {
+            existingUser.setName(userRequest.getName());
+        }
+        if (userRequest.getEmail() != null) {
+            existingUser.setEmail(userRequest.getEmail());
+        }
+        if (userRequest.getPassword() != null) {
+            existingUser.setPassword(hashPassword(userRequest.getPassword()));
+        }
+        if (userRequest.getMobileNumber() != null) {
+            existingUser.setMobileNumber(userRequest.getMobileNumber());
+        }
+        User updatedUser = userRepository.save(existingUser);
+        return MapperUtil.userEntityToDto(updatedUser);
     }
 
     @Override
@@ -65,10 +79,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private User findByEmail(String email) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        return userOpt.orElseThrow(() -> {
+        return userRepository.findByEmail(email).orElseThrow(() -> {
             log.error("User with email: {} does not exist", email);
             return new NotFoundException("User with email: " + email + " not found");
         });
+    }
+
+    private String hashPassword(String password) {
+        // TODO: Add actual implementation
+        return password;
     }
 }

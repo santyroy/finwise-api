@@ -10,8 +10,7 @@ import com.roy.finwise.repository.CategoryRepository;
 import com.roy.finwise.repository.TransactionRepository;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.service.TransactionService;
-import com.roy.finwise.util.DtoToEntityUtil;
-import com.roy.finwise.util.EntityToDtoUtil;
+import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,9 +37,9 @@ public class TransactionServiceImpl implements TransactionService {
         User user = userRepository.findById(UUID.fromString(transactionRequest.getUserId()))
                 .orElseThrow(() -> new NotFoundException("User " + transactionRequest.getUserId() + " not found"));
 
-        Transaction newTransaction = DtoToEntityUtil.transactionDtoToEntity(transactionRequest, category, user);
+        Transaction newTransaction = MapperUtil.transactionDtoToEntity(transactionRequest, category, user);
         Transaction savedTransaction = transactionRepository.save(newTransaction);
         log.info("Transaction saved with ID: {}", savedTransaction.getId());
-        return EntityToDtoUtil.transactionEntityToDto(savedTransaction);
+        return MapperUtil.transactionEntityToDto(savedTransaction);
     }
 }
