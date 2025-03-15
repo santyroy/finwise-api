@@ -34,6 +34,12 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PutMapping("{userId}")
+    public ResponseEntity<UserResponse> updateUserByEmail(@PathVariable String email, @RequestBody UserRequest userRequest) {
+        UserResponse user = userService.updateUserByEmail(email, userRequest);
+        return ResponseEntity.ok(user);
+    }
+
     @DeleteMapping("{email}")
     public ResponseEntity<String> deleteUserByEmail(@PathVariable String email) {
         userService.deleteUserByEmail(email);
