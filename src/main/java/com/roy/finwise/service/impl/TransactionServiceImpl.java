@@ -2,6 +2,7 @@ package com.roy.finwise.service.impl;
 
 import com.roy.finwise.dto.TransactionRequest;
 import com.roy.finwise.dto.TransactionResponse;
+import com.roy.finwise.dto.UserResponse;
 import com.roy.finwise.entity.Category;
 import com.roy.finwise.entity.Transaction;
 import com.roy.finwise.entity.TransactionType;
@@ -14,10 +15,12 @@ import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,8 +45,25 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<TransactionResponse> getAllTransactions(String userId, Pageable pageable) {
-        return null;
+    public Page<TransactionResponse> getAllTransactions(String userId, int pageNo, int pageSize,
+                                                        String direction, String properties) {
+
+        pageNo = Math.max(pageNo, 0);
+        pageSize = Math.max(pageSize, 1);
+        direction = direction.equalsIgnoreCase("ASC") ? "ASC" : "DESC";
+        properties = List.of("type", "amount", "createdAt", "tags").contains(properties) ? properties : "createdAt";
+
+        try {
+            UserResponse user = userService.findUserById(userId);
+            if (user != null) {
+                PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.Direction.valueOf(direction), properties);
+                Page<Transaction> transactions = transactionRepository.findByUserId(UUID.fromString(userId), pageRequest);
+                return transactions.map(MapperUtil::transactionEntityToDto);
+            }
+            return Page.empty();
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Invalid pagination parameters");
+        }
     }
 
     @Override

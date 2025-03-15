@@ -5,6 +5,7 @@ import com.roy.finwise.dto.TransactionResponse;
 import com.roy.finwise.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,17 @@ public class TransactionController {
     public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
         TransactionResponse transactionResponse = transactionService.createTransaction(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponse);
+    }
+
+    @GetMapping("{userId}")
+    public ResponseEntity<Page<TransactionResponse>> getAllTransactionsByPage(@PathVariable String userId,
+                                                                              @RequestParam(defaultValue = "0") int pageNo,
+                                                                              @RequestParam(defaultValue = "10") int pageSize,
+                                                                              @RequestParam(defaultValue = "DESC") String direction,
+                                                                              @RequestParam(defaultValue = "createdAt") String properties) {
+        Page<TransactionResponse> allTransactions = transactionService
+                .getAllTransactions(userId, pageNo, pageSize, direction, properties);
+        return ResponseEntity.ok(allTransactions);
     }
 
     @PutMapping("{transactionId}")
