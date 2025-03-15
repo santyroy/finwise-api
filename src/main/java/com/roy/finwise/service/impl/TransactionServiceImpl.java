@@ -13,6 +13,8 @@ import com.roy.finwise.service.TransactionService;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,5 +43,29 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction savedTransaction = transactionRepository.save(newTransaction);
         log.info("Transaction saved with ID: {}", savedTransaction.getId());
         return MapperUtil.transactionEntityToDto(savedTransaction);
+    }
+
+    @Override
+    public Page<TransactionResponse> getAllTransactions(String userId, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public TransactionResponse updateTransaction(String transactionId, TransactionRequest transactionRequest) {
+        return null;
+    }
+
+    @Override
+    public void deleteTransaction(String transactionId) {
+        Transaction existingTransaction = findByTransactionId(transactionId);
+        transactionRepository.delete(existingTransaction);
+    }
+
+    private Transaction findByTransactionId(String transactionId) {
+        return transactionRepository.findById(UUID.fromString(transactionId))
+                .orElseThrow(() -> {
+                    log.error("Transaction with ID: {} does not exist", transactionId);
+                    return new NotFoundException("Transaction with ID: " + transactionId + " not found");
+                });
     }
 }
