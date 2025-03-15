@@ -30,7 +30,7 @@ public class Transaction {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    @OneToOne
+    @ManyToOne
     private Category category;
 
     @Column(nullable = false)
@@ -52,11 +52,11 @@ public class Transaction {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return Objects.equals(id, that.id) && type == that.type && Objects.equals(amount, that.amount) && Objects.equals(category, that.category) && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt) && Objects.equals(description, that.description) && Objects.equals(tags, that.tags) && Objects.equals(user, that.user);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, amount, category, createdAt, updatedAt, description, tags, user);
+        return Objects.hashCode(id);
     }
 }
