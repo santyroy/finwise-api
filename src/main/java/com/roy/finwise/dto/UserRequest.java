@@ -20,7 +20,7 @@ public class UserRequest {
     private String email;
 
     @NotBlank(message = "Password is mandatory")
-    @Size(min = 8)
+    @Size(min = 8, message = "Password must of minimum 8 characters")
     private String password;
 
     @NotBlank(message = "Mobile number is mandatory")
