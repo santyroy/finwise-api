@@ -1,8 +1,10 @@
 package com.roy.finwise.db;
 
 import com.roy.finwise.entity.Category;
+import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.TransactionType;
 import com.roy.finwise.repository.CategoryRepository;
+import com.roy.finwise.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -16,11 +18,14 @@ import java.util.List;
 public class DataInitializer implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public void run(String... args) throws Exception {
         log.info("Adding system generated categories to application");
         initializeCategories();
+        log.info("Adding roles to application");
+        initializeRoles();
     }
 
     private void initializeCategories() {
@@ -60,6 +65,17 @@ public class DataInitializer implements CommandLineRunner {
         // Save all new categories at once
         if (!newCategories.isEmpty()) {
             categoryRepository.saveAll(newCategories);
+        }
+    }
+
+    private void initializeRoles() {
+        List<Role> roles = List.of(
+                new Role("USER"),
+                new Role("ADMIN")
+        );
+        List<Role> newRoles = roles.stream().filter(role -> roleRepository.findByName(role.getName()).isEmpty()).toList();
+        if (!newRoles.isEmpty()) {
+            roleRepository.saveAll(newRoles);
         }
     }
 }
