@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class Role {
@@ -19,4 +18,8 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String name;
+
+    public Role(String name) {
+        this.name = name;
+    }
 }

@@ -2,6 +2,7 @@ package com.roy.finwise.service.impl;
 
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
 import com.roy.finwise.exceptions.NotFoundException;
 import com.roy.finwise.exceptions.UserAlreadyExistException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -36,6 +38,7 @@ public class UserServiceImpl implements UserService {
             log.error("User with email: {} already exist", userRequest.getEmail());
             throw new UserAlreadyExistException("User with email: " + newUser.getEmail() + " already exists");
         }
+        newUser.setRoles(Set.of(new Role("USER")));
         User savedUser = userRepository.save(newUser);
         log.info("User saved with ID: {}", savedUser.getId());
         return MapperUtil.userEntityToDto(savedUser);
