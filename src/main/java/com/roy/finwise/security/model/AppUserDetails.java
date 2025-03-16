@@ -1,27 +1,22 @@
 package com.roy.finwise.security.model;
 
-import com.roy.finwise.entity.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 
 public class AppUserDetails implements UserDetails {
 
     private final String username;
     private final String password;
-    private final List<GrantedAuthority> authorities;
+    private final Set<GrantedAuthority> authorities;
 
-    public AppUserDetails(User user) {
-        this.username = user.getEmail();
-        this.password = user.getPassword();
-        this.authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toUnmodifiableList());
+    public AppUserDetails(String username, String password, Set<GrantedAuthority> authorities) {
+        this.username = username;
+        this.password = password;
+        this.authorities = authorities;
     }
 
     @Override
