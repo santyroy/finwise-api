@@ -42,6 +42,7 @@ public class Transaction {
 
     @ElementCollection
     @CollectionTable(name = "transaction_tags", joinColumns = @JoinColumn(name = "transaction_id"))
+    @Builder.Default
     private Set<String> tags = new HashSet<>();
 
     @ManyToOne

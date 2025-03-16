@@ -34,13 +34,16 @@ public class User {
     private String mobileNumber;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Transaction> transactions = new HashSet<>();
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "userId"), inverseJoinColumns = @JoinColumn(name = "roleId"))
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     @Override
