@@ -33,13 +33,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse createUser(UserRequest userRequest) {
         log.info("Creating user with email: {}", userRequest.getEmail());
-        userRequest.setPassword(hashPassword(userRequest.getPassword()));
-        User newUser = MapperUtil.userDtoToEntity(userRequest);
-        Optional<User> userOpt = userRepository.findByEmail(newUser.getEmail());
+        Optional<User> userOpt = userRepository.findByEmail(userRequest.getEmail());
         if (userOpt.isPresent()) {
             log.error("User with email: {} already exist", userRequest.getEmail());
-            throw new UserAlreadyExistException("User with email: " + newUser.getEmail() + " already exists");
+            throw new UserAlreadyExistException("User with email: " + userRequest.getEmail() + " already exists");
         }
+        User newUser = MapperUtil.userDtoToEntity(userRequest);
+        newUser.setPassword(hashPassword(newUser.getPassword()));
         Role role = roleRepository.findByName("USER").orElseGet(() -> roleRepository.save(new Role("USER")));
         newUser.setRoles(Set.of(role));
         User savedUser = userRepository.save(newUser);
