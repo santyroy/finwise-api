@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserResponse getUserDetails(String email) {
+    public UserResponse getUser(String email) {
         log.info("Logging user with email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));

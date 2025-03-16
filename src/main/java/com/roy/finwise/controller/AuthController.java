@@ -4,6 +4,7 @@ import com.roy.finwise.dto.LoginRequest;
 import com.roy.finwise.dto.LoginResponse;
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.security.service.JwtService;
 import com.roy.finwise.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,7 @@ public class AuthController {
 
     private final AuthenticationManager authManager;
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -39,10 +42,10 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // Generate JWT token
-            String jwt = "implementation-in-progress";
+            String jwt = jwtService.generateToken((UserDetails) authentication.getPrincipal());
 
             // Get user
-            UserResponse userResponse = authService.getUserDetails(request.email());
+            UserResponse userResponse = authService.getUser(request.email());
 
             return ResponseEntity.ok(
                     new LoginResponse(jwt, userResponse.getName(), userResponse.getEmail(), userResponse.getRoles()));
@@ -52,8 +55,8 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {
+    @PostMapping("/signup")
+    public ResponseEntity<UserResponse> signup(@Valid @RequestBody UserRequest request) {
         UserResponse userResponse = authService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
