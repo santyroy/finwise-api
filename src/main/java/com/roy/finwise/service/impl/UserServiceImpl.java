@@ -6,6 +6,7 @@ import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
 import com.roy.finwise.exceptions.NotFoundException;
 import com.roy.finwise.exceptions.UserAlreadyExistException;
+import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.service.UserService;
 import com.roy.finwise.util.MapperUtil;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -38,7 +40,8 @@ public class UserServiceImpl implements UserService {
             log.error("User with email: {} already exist", userRequest.getEmail());
             throw new UserAlreadyExistException("User with email: " + newUser.getEmail() + " already exists");
         }
-        newUser.setRoles(Set.of(new Role("USER")));
+        Role role = roleRepository.findByName("USER").orElseGet(() -> roleRepository.save(new Role("USER")));
+        newUser.setRoles(Set.of(role));
         User savedUser = userRepository.save(newUser);
         log.info("User saved with ID: {}", savedUser.getId());
         return MapperUtil.userEntityToDto(savedUser);
