@@ -13,6 +13,8 @@ import java.time.Instant;
 
 public class MapperUtil {
 
+    private MapperUtil() {}
+
     public static Transaction transactionDtoToEntity(TransactionRequest transactionRequest, Category category, User user) {
         Instant now = Instant.now();
         return Transaction.builder()

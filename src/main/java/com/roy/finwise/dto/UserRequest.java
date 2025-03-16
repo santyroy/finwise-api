@@ -24,7 +24,7 @@ public class UserRequest {
     private String password;
 
     @NotBlank(message = "Mobile number is mandatory")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Mobile number must be exactly 10 digits")
+    @Pattern(regexp = "^\\d{10}$", message = "Mobile number must be exactly 10 digits")
     private String mobileNumber;
 
 }
