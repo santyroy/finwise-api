@@ -1,5 +1,6 @@
 package com.roy.finwise.controller;
 
+import com.roy.finwise.dto.PageDTO;
 import com.roy.finwise.dto.TransactionRequest;
 import com.roy.finwise.dto.TransactionResponse;
 import com.roy.finwise.service.TransactionService;
@@ -22,7 +23,15 @@ public class TransactionController {
         TransactionResponse transactionResponse = transactionService.createTransaction(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponse);
     }
-
+    /*
+    NOT RECOMMENDED APPROACH
+    Serializing PageImpl instances as-is is not supported,
+    meaning that there is no guarantee about the stability of the resulting JSON structure!
+    For a stable JSON structure, please use Spring Data's PagedModel
+    (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+    or Spring HATEOAS and Spring Data's PagedResourcesAssembler as
+    documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+     */
     @GetMapping("{userId}")
     public ResponseEntity<Page<TransactionResponse>> getAllTransactionsByPage(@PathVariable String userId,
                                                                               @RequestParam(defaultValue = "0") int pageNo,
@@ -32,6 +41,20 @@ public class TransactionController {
         Page<TransactionResponse> allTransactions = transactionService
                 .getAllTransactions(userId, pageNo, pageSize, direction, properties);
         return ResponseEntity.ok(allTransactions);
+    }
+
+    /*
+    Option 1: Use Custom PageDTO wrapper (Recommended for simplicity)
+     */
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<PageDTO<TransactionResponse>> getAllTransactionsByPageDTO(@PathVariable String userId,
+                                                                                    @RequestParam(defaultValue = "0") int pageNo,
+                                                                                    @RequestParam(defaultValue = "10") int pageSize,
+                                                                                    @RequestParam(defaultValue = "DESC") String direction,
+                                                                                    @RequestParam(defaultValue = "createdAt") String properties) {
+        Page<TransactionResponse> allTransactions = transactionService
+                .getAllTransactions(userId, pageNo, pageSize, direction, properties);
+        return ResponseEntity.ok(new PageDTO<>(allTransactions));
     }
 
     @PutMapping("{transactionId}")
