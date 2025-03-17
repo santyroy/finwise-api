@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -49,9 +48,9 @@ public class ExceptionsHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiErrorResponse> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
-        log.error("BadCredentialsException: {}", ex.getMessage(), ex);
+    @ExceptionHandler(CustomAuthenticationException.class)
+    public ResponseEntity<ApiErrorResponse> handleCustomAuthenticationException(CustomAuthenticationException ex, WebRequest request) {
+        log.error("CustomAuthenticationException: {}", ex.getMessage(), ex);
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request, null);
     }
 
