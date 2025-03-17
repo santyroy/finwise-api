@@ -2,7 +2,6 @@ package com.roy.finwise.service.impl;
 
 import com.roy.finwise.dto.TransactionRequest;
 import com.roy.finwise.dto.TransactionResponse;
-import com.roy.finwise.dto.UserResponse;
 import com.roy.finwise.entity.Category;
 import com.roy.finwise.entity.Transaction;
 import com.roy.finwise.entity.TransactionType;
@@ -54,10 +53,10 @@ public class TransactionServiceImpl implements TransactionService {
         properties = List.of("type", "amount", "createdAt", "tags").contains(properties) ? properties : "createdAt";
 
         try {
-            UserResponse user = userService.findUserById(userId);
+            User user = userService.findById(userId);
             if (user != null) {
                 PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.Direction.valueOf(direction), properties);
-                Page<Transaction> transactions = transactionRepository.findByUserId(UUID.fromString(userId), pageRequest);
+                Page<Transaction> transactions = transactionRepository.findByUser(user, pageRequest);
                 return transactions.map(MapperUtil::transactionEntityToDto);
             }
             return Page.empty();
