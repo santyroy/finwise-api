@@ -1,17 +1,28 @@
 package com.roy.finwise.service.impl;
 
+import com.roy.finwise.dto.LoginRequest;
+import com.roy.finwise.dto.LoginResponse;
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
 import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
+import com.roy.finwise.exceptions.CustomAuthenticationException;
 import com.roy.finwise.exceptions.NotFoundException;
 import com.roy.finwise.exceptions.UserAlreadyExistException;
 import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
+import com.roy.finwise.security.service.JwtService;
 import com.roy.finwise.service.AuthService;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,21 +39,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-
-    @Transactional(readOnly = true)
-    @Override
-    public UserResponse getUser(String email) {
-        log.info("Logging user with email: {}", email);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));
-        Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toUnmodifiableSet());
-        return UserResponse.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .mobileNumber(user.getMobileNumber())
-                .roles(roles)
-                .build();
-    }
+    private final AuthenticationManager authManager;
+    private final JwtService jwtService;
 
     @Transactional
     @Override
@@ -60,5 +58,44 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(newUser);
         log.info("Successfully created user with ID: {}", savedUser.getId());
         return MapperUtil.userEntityToDto(savedUser);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LoginResponse login(LoginRequest request) {
+        log.info("Logging user with email: {}", request.email());
+        try {
+            // Authenticate the user
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+
+            // Set authentication to security context
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Generate JWT token
+            UserDetails principal = (UserDetails) authentication.getPrincipal();
+            String jwt = jwtService.generateToken(principal);
+
+            // Get user
+            UserResponse userResponse = getUser(principal.getUsername());
+
+            return new LoginResponse(jwt, userResponse.getName(), userResponse.getEmail(), userResponse.getRoles());
+
+        } catch (BadCredentialsException | InternalAuthenticationServiceException ex) {
+            log.error("Authentication failed for email: {}", request.email(), ex);
+            throw new CustomAuthenticationException("Invalid Credentials.");
+        }
+    }
+
+    private UserResponse getUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));
+        Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toUnmodifiableSet());
+        return UserResponse.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
+                .roles(roles)
+                .build();
     }
 }
