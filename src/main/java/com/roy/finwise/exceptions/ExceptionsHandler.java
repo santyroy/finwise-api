@@ -1,6 +1,11 @@
 package com.roy.finwise.exceptions;
 
 import com.roy.finwise.dto.ApiErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -55,6 +60,24 @@ public class ExceptionsHandler {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred", request, null);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiErrorResponse> handleJwtException(JwtException ex, WebRequest request) {
+        log.error("JwtException: {}", ex.getMessage(), ex);
+        String errorMessage;
+        if (ex instanceof ExpiredJwtException) {
+            errorMessage = "JWT token has expired";
+        } else if (ex instanceof SignatureException) {
+            errorMessage = "JWT signature is invalid";
+        } else if (ex instanceof MalformedJwtException) {
+            errorMessage = "JWT token is malformed";
+        } else if (ex instanceof UnsupportedJwtException) {
+            errorMessage = "JWT token type is unsupported";
+        } else {
+            errorMessage = "JWT token is invalid";
+        }
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, errorMessage, request, null);
     }
 
     private ResponseEntity<ApiErrorResponse> buildErrorResponse(
