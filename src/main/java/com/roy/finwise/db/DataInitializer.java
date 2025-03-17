@@ -22,9 +22,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("Adding system generated categories to application");
         initializeCategories();
-        log.info("Adding roles to application");
         initializeRoles();
     }
 
@@ -64,6 +62,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // Save all new categories at once
         if (!newCategories.isEmpty()) {
+            log.info("Adding system generated categories to application");
             categoryRepository.saveAll(newCategories);
         }
     }
@@ -75,6 +74,7 @@ public class DataInitializer implements CommandLineRunner {
         );
         List<Role> newRoles = roles.stream().filter(role -> roleRepository.findByName(role.getName()).isEmpty()).toList();
         if (!newRoles.isEmpty()) {
+            log.info("Adding system generated roles to application");
             roleRepository.saveAll(newRoles);
         }
     }
