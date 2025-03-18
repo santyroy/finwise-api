@@ -50,7 +50,24 @@ public class JwtService {
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+        return buildToken(userDetails, refreshExpiration);
+    }
+
+    private String buildToken(UserDetails userDetails, long expiration) {
+        final Date now = new Date(System.currentTimeMillis());
+        final Date expiryDate = new Date(now.getTime() + expiration);
+
+        return Jwts
+                .builder()
+                .subject((userDetails).getUsername())
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .notBefore(now) // Add not-before claim
+                .id(UUID.randomUUID().toString()) // Add JWT ID
+                .issuer(issuer) // Add issuer
+                .audience().add(audience).and() // Add audience
+                .signWith(getSignInKey())
+                .compact();
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {

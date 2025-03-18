@@ -1,9 +1,6 @@
 package com.roy.finwise.service.impl;
 
-import com.roy.finwise.dto.LoginRequest;
-import com.roy.finwise.dto.LoginResponse;
-import com.roy.finwise.dto.UserRequest;
-import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.dto.*;
 import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
 import com.roy.finwise.exceptions.CustomAuthenticationException;
@@ -74,12 +71,13 @@ public class AuthServiceImpl implements AuthService {
 
             // Generate JWT token
             UserDetails principal = (UserDetails) authentication.getPrincipal();
-            String jwt = jwtService.generateToken(principal);
+            String accessToken = jwtService.generateToken(principal);
+            String refreshToken = jwtService.generateRefreshToken(principal);
 
             // Get user
             UserResponse userResponse = getUser(principal.getUsername());
 
-            return new LoginResponse(jwt, userResponse.getName(), userResponse.getEmail(), userResponse.getRoles());
+            return new LoginResponse(accessToken, refreshToken, userResponse.getName(), userResponse.getEmail(), userResponse.getRoles());
 
         } catch (BadCredentialsException | InternalAuthenticationServiceException ex) {
             log.error("Authentication failed for email: {}", request.email(), ex);
