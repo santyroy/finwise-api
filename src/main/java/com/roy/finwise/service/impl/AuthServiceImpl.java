@@ -1,6 +1,9 @@
 package com.roy.finwise.service.impl;
 
-import com.roy.finwise.dto.*;
+import com.roy.finwise.dto.LoginRequest;
+import com.roy.finwise.dto.LoginResponse;
+import com.roy.finwise.dto.UserRequest;
+import com.roy.finwise.dto.UserResponse;
 import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
 import com.roy.finwise.exceptions.CustomAuthenticationException;

@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // Extract username/email from token
-            userEmail = jwtService.extractUsername(jwt);
+            userEmail = jwtService.extractSubject(jwt);
 
             // If we have a username and no authentication is set yet
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
