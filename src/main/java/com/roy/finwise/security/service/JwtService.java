@@ -122,6 +122,9 @@ public class JwtService {
 
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        if (keyBytes.length < 32) {
+            throw new IllegalArgumentException("The secret key must be at least 256 bits long.");
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
