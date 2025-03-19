@@ -10,7 +10,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,10 +35,12 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
 
+    private final String[] csrfExcludeEndpoints = {"/api/v1/auth/**", "/api/v1/transactions/**"};
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(csrf -> csrf.ignoringRequestMatchers(csrfExcludeEndpoints));
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/api/v1/auth/**").permitAll();
             auth.anyRequest().authenticated();
