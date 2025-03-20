@@ -31,6 +31,6 @@ public class AppUserDetailsService implements UserDetailsService {
         Set<GrantedAuthority> roles = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toUnmodifiableSet());
-        return new AppUserDetails(user.getEmail(), user.getPassword(), roles);
+        return new AppUserDetails(user.getEmail(), user.getPassword(), roles, user.isEnabled());
     }
 }

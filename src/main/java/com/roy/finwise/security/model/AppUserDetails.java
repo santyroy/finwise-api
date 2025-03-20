@@ -12,11 +12,13 @@ public class AppUserDetails implements UserDetails {
     private final String username;
     private final String password;
     private final Set<GrantedAuthority> authorities;
+    private final boolean enabled;
 
-    public AppUserDetails(String username, String password, Set<GrantedAuthority> authorities) {
+    public AppUserDetails(String username, String password, Set<GrantedAuthority> authorities, boolean enabled) {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
+        this.enabled = enabled;
     }
 
     @Override
@@ -51,6 +53,6 @@ public class AppUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.enabled;
     }
 }
