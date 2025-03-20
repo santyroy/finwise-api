@@ -1,15 +1,10 @@
 package com.roy.finwise.service.impl;
 
-import com.roy.finwise.dto.LoginRequest;
-import com.roy.finwise.dto.LoginResponse;
-import com.roy.finwise.dto.UserRequest;
-import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.dto.*;
 import com.roy.finwise.entity.RefreshToken;
 import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
-import com.roy.finwise.exceptions.CustomAuthenticationException;
-import com.roy.finwise.exceptions.NotFoundException;
-import com.roy.finwise.exceptions.UserAlreadyExistException;
+import com.roy.finwise.exceptions.*;
 import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.security.service.JwtService;
@@ -106,6 +101,25 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+        RefreshToken oldRefreshToken = validateRefreshToken(request.refreshToken());
+        UUID userId = oldRefreshToken.getUser().getId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        // Rotate refresh token (more secure)
+        // Delete old refresh token
+        refreshTokenRepository.delete(oldRefreshToken);
+
+        // Generate new access token
+        String accessToken = jwtService.generateAccessToken(user.getEmail(), null);
+
+        // Generate new refresh token
+        String refreshToken = generateRefreshToken(user);
+
+        return new RefreshTokenResponse(accessToken, refreshToken);
+    }
+
     private User getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));
@@ -123,5 +137,28 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         refreshTokenRepository.save(refreshToken);
         return token;
+    }
+
+    private RefreshToken validateRefreshToken(String refreshToken) {
+        // Find the stored refresh token
+        RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new NotFoundException("Refresh token not found"));
+
+        // Check if token is expired
+        if (storedToken.getExpiration().isBefore(Instant.now())) {
+            refreshTokenRepository.delete(storedToken);
+            throw new TokenExpiredException("Refresh token expired");
+        }
+
+        // Validate the token belongs to a valid user
+        User user = userRepository.findById(storedToken.getUser().getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        // Check if user is still active
+        if (!user.isEnabled()) {
+            throw new UserInactiveException("User account is inactive");
+        }
+
+        return storedToken;
     }
 }
