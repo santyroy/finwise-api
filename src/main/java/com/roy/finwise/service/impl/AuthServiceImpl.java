@@ -4,6 +4,7 @@ import com.roy.finwise.dto.LoginRequest;
 import com.roy.finwise.dto.LoginResponse;
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.entity.RefreshToken;
 import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
 import com.roy.finwise.exceptions.CustomAuthenticationException;
@@ -13,9 +14,11 @@ import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.security.service.JwtService;
 import com.roy.finwise.service.AuthService;
+import com.roy.finwise.service.RefreshTokenRepository;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -27,22 +30,28 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
 
-    @Transactional
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshTokenExpiration;
+
     @Override
     public UserResponse registerUser(UserRequest request) {
         log.info("Creating user with email: {}", request.getEmail());
@@ -61,7 +70,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         log.info("Logging user with email: {}", request.email());
         try {
@@ -71,16 +79,17 @@ public class AuthServiceImpl implements AuthService {
 
             // Set authentication to security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // Generate JWT token
             UserDetails principal = (UserDetails) authentication.getPrincipal();
-            String accessToken = jwtService.generateAccessToken(request.email(), null);
-            String refreshToken = jwtService.generateRefreshToken(request.email(), null);
 
             // Get user
-            UserResponse userResponse = getUser(principal.getUsername());
+            User user = getUser(principal.getUsername());
+            Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toUnmodifiableSet());
 
-            return new LoginResponse(accessToken, refreshToken, userResponse.getName(), userResponse.getEmail(), userResponse.getRoles());
+            // Generate JWT tokens
+            String accessToken = jwtService.generateAccessToken(request.email(), null);
+            String refreshToken = generateRefreshToken(user);
+
+            return new LoginResponse(accessToken, refreshToken, user.getName(), user.getEmail(), roles);
 
         } catch (BadCredentialsException | InternalAuthenticationServiceException ex) {
             log.error("Authentication failed for email: {}", request.email(), ex);
@@ -88,15 +97,19 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private UserResponse getUser(String email) {
-        User user = userRepository.findByEmail(email)
+    private User getUser(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));
-        Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toUnmodifiableSet());
-        return UserResponse.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .mobileNumber(user.getMobileNumber())
-                .roles(roles)
+    }
+
+    private String generateRefreshToken(User user) {
+        String refreshToken = UUID.randomUUID().toString();
+        RefreshToken token = RefreshToken.builder()
+                .token(passwordEncoder.encode(refreshToken))
+                .expiration(Instant.now().plusMillis(refreshTokenExpiration))
+                .user(user)
                 .build();
+        refreshTokenRepository.save(token);
+        return refreshToken;
     }
 }
