@@ -87,8 +87,15 @@ public class AuthServiceImpl implements AuthService {
             User user = getUser(principal.getUsername());
             Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toUnmodifiableSet());
 
-            // Generate JWT tokens
+            // Delete the old refresh token from DB
+            Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByUser(user);
+            refreshTokenOpt.ifPresent(refreshTokenRepository::delete);
+            // Flush to ensure delete is processed immediately
+            refreshTokenRepository.flush();
+
+            // Generate Access tokens
             String accessToken = jwtService.generateAccessToken(request.email(), null);
+            // Generate Refresh token
             String refreshToken = generateRefreshToken(user);
 
             return new LoginResponse(accessToken, refreshToken, user.getName(), user.getEmail(), roles);
