@@ -110,6 +110,8 @@ public class AuthServiceImpl implements AuthService {
         // Rotate refresh token (more secure)
         // Delete old refresh token
         refreshTokenRepository.delete(oldRefreshToken);
+        // Flush to ensure delete is processed immediately
+        refreshTokenRepository.flush();
 
         // Generate new access token
         String accessToken = jwtService.generateAccessToken(user.getEmail(), null);

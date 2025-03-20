@@ -1,9 +1,6 @@
 package com.roy.finwise.controller;
 
-import com.roy.finwise.dto.LoginRequest;
-import com.roy.finwise.dto.LoginResponse;
-import com.roy.finwise.dto.UserRequest;
-import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.dto.*;
 import com.roy.finwise.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +28,11 @@ public class AuthController {
     public ResponseEntity<UserResponse> signup(@Valid @RequestBody UserRequest request) {
         UserResponse userResponse = authService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody RefreshTokenRequest request) {
+        RefreshTokenResponse refreshTokenResponse = authService.refreshToken(request);
+        return ResponseEntity.ok(refreshTokenResponse);
     }
 }
