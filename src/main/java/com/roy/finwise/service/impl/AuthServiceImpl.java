@@ -103,13 +103,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String generateRefreshToken(User user) {
-        String refreshToken = UUID.randomUUID().toString();
-        RefreshToken token = RefreshToken.builder()
-                .token(passwordEncoder.encode(refreshToken))
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] tokenBytes = new byte[64];
+        secureRandom.nextBytes(tokenBytes);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+        RefreshToken refreshToken = RefreshToken.builder()
+                .token(token)
                 .expiration(Instant.now().plusMillis(refreshTokenExpiration))
                 .user(user)
                 .build();
-        refreshTokenRepository.save(token);
-        return refreshToken;
+        refreshTokenRepository.save(refreshToken);
+        return token;
     }
 }
