@@ -93,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
             // Generate Refresh token
             String refreshToken = generateRefreshToken(user);
 
-            return new LoginResponse(accessToken, refreshToken, user.getName(), user.getEmail(), roles);
+            return new LoginResponse(accessToken, refreshToken, user.getId().toString(), user.getName(), user.getEmail(), roles);
 
         } catch (BadCredentialsException | InternalAuthenticationServiceException ex) {
             log.error("Authentication failed for email: {}", request.email(), ex);
