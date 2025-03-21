@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -52,6 +53,13 @@ public class ExceptionsHandler {
     public ResponseEntity<ApiErrorResponse> handleCustomAuthenticationException(CustomAuthenticationException ex, WebRequest request) {
         log.error("CustomAuthenticationException: {}", ex.getMessage(), ex);
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiErrorResponse> handleDisabledUserException(DisabledException ex, WebRequest request) {
+        log.error("User is disabled, need to verify OTP: {}", ex.getMessage(), ex);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED,
+                "Please verify your account via OTP", request, null);
     }
 
     @ExceptionHandler(Exception.class)
