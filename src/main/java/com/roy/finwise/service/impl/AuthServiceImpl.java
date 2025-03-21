@@ -9,6 +9,7 @@ import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.security.service.JwtService;
 import com.roy.finwise.service.AuthService;
+import com.roy.finwise.service.OtpService;
 import com.roy.finwise.service.RefreshTokenRepository;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
+    private final OtpService otpService;
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshTokenExpiration;
@@ -62,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
         Role role = roleRepository.findByName("USER").orElseGet(() -> roleRepository.save(new Role("USER")));
         newUser.setRoles(Set.of(role));
         User savedUser = userRepository.save(newUser);
+        otpService.sendOtp(request.getEmail());
         log.info("Successfully created user with ID: {}", savedUser.getId());
         return MapperUtil.userEntityToDto(savedUser);
     }

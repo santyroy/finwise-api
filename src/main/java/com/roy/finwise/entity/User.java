@@ -46,8 +46,7 @@ public class User {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
-    @Builder.Default
-    private boolean enabled = true;
+    private boolean enabled;
 
     @Override
     public boolean equals(Object o) {
