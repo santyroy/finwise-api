@@ -60,23 +60,22 @@ public class OtpEventListener {
     }
 
     private boolean shouldRetry(String errorMessage) {
-        boolean flag = true;
         // Don't retry for invalid recipient errors
         if (errorMessage.contains("does not exist") ||
                 errorMessage.contains("mailbox unavailable") ||
                 errorMessage.contains("550 5.1.1")) {
-            flag = false;
+            return false;
         }
 
         // Don't retry for blocked/rejected emails
-        else if (errorMessage.contains("blocked") ||
+        if (errorMessage.contains("blocked") ||
                 errorMessage.contains("rejected") ||
                 errorMessage.contains("550 5.7.1")) {
-            flag = false;
+            return false;
         }
 
         // Retry for temporary failures like connection issues
-        return flag;
+        return true;
     }
 
     private void scheduleRetry(String email) {
