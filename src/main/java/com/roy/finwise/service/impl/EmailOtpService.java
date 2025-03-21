@@ -1,7 +1,7 @@
 package com.roy.finwise.service.impl;
 
-import com.roy.finwise.event.OtpSentEvent;
 import com.roy.finwise.entity.Otp;
+import com.roy.finwise.event.OtpSentEvent;
 import com.roy.finwise.repository.OtpRepository;
 import com.roy.finwise.service.OtpService;
 import lombok.RequiredArgsConstructor;
@@ -74,8 +74,10 @@ public class EmailOtpService implements OtpService {
         // Check if OTP matches
         boolean isValid = otpEntity.getOtpNumber().equals(otp);
 
-        // Delete OTP after validation (one-time use)
-        otpRepository.delete(otpEntity);
+        if (isValid) {
+            // Delete OTP after validation (one-time use)
+            otpRepository.delete(otpEntity);
+        }
 
         return isValid;
     }

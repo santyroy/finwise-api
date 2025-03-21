@@ -30,6 +30,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
+    @PostMapping("/confirm")
+    public ResponseEntity<String> signupConfirmation(@Valid @RequestBody SignupConfirmRequest request) {
+        boolean isValid = authService.confirmUserSignup(request);
+        return isValid ? ResponseEntity.ok("User registration successful")
+                : ResponseEntity.badRequest().body("Invalid OTP or Email");
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody RefreshTokenRequest request) {
         RefreshTokenResponse refreshTokenResponse = authService.refreshToken(request);

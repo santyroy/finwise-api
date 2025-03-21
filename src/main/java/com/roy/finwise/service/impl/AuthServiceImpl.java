@@ -125,6 +125,11 @@ public class AuthServiceImpl implements AuthService {
         return new RefreshTokenResponse(accessToken, refreshToken);
     }
 
+    @Override
+    public boolean confirmUserSignup(SignupConfirmRequest request) {
+        return otpService.validateOtp(request.getEmail(), request.getOtp());
+    }
+
     private User getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));
