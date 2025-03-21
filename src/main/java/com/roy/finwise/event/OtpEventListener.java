@@ -68,14 +68,11 @@ public class OtpEventListener {
         }
 
         // Don't retry for blocked/rejected emails
-        if (errorMessage.contains("blocked") ||
-                errorMessage.contains("rejected") ||
-                errorMessage.contains("550 5.7.1")) {
-            return false;
-        }
+        return !errorMessage.contains("blocked") &&
+                !errorMessage.contains("rejected") &&
+                !errorMessage.contains("550 5.7.1");
 
         // Retry for temporary failures like connection issues
-        return true;
     }
 
     private void scheduleRetry(String email) {
