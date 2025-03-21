@@ -127,7 +127,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean confirmUserSignup(SignupConfirmRequest request) {
-        return otpService.validateOtp(request.getEmail(), request.getOtp());
+        return otpService.validateOtp(request.email(), request.otp());
+    }
+
+    @Override
+    public void resendOtp(ResendOTP request) {
+        otpService.sendOtp(request.email());
     }
 
     private User getUser(String email) {

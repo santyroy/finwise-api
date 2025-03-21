@@ -37,6 +37,12 @@ public class AuthController {
                 : ResponseEntity.badRequest().body("Invalid OTP or Email");
     }
 
+    @PostMapping("/resendOtp")
+    public ResponseEntity<String> resendOtp(@Valid @RequestBody ResendOTP request) {
+        authService.resendOtp(request);
+        return ResponseEntity.ok("Otp sent successfully");
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody RefreshTokenRequest request) {
         RefreshTokenResponse refreshTokenResponse = authService.refreshToken(request);
