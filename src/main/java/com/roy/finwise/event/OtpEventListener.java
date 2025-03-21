@@ -61,7 +61,6 @@ public class OtpEventListener {
 
     private boolean shouldRetry(String errorMessage) {
         boolean flag = true;
-        // TODO: Check for the actual error messages from documentation of Gmail
         // Don't retry for invalid recipient errors
         if (errorMessage.contains("does not exist") ||
                 errorMessage.contains("mailbox unavailable") ||
@@ -88,5 +87,6 @@ public class OtpEventListener {
 
     private void updateAnalytics(String email, boolean success) {
         // Update metrics, analytics, etc.
+        log.info("OTP send status: {} for email: {}", success, email);
     }
 }
