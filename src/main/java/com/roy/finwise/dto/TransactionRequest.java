@@ -24,6 +24,7 @@ public class TransactionRequest {
     @DecimalMin(value = "0.0", inclusive = false, message = "Transaction amount should be created than 0")
     private BigDecimal amount;
 
+    @NotBlank(message = "Transaction category is mandatory")
     private String category;
     private String description;
     private Set<String> tags;
