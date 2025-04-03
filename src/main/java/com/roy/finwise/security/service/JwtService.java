@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.security.KeyPair;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
@@ -33,6 +34,8 @@ public class JwtService {
     @Value("${application.security.jwt.audience}")
     private String audience;
 
+    private static final KeyPair keyPair = Jwts.SIG.RS256.keyPair().build(); //or RS384, RS512, PS256, etc...
+
     public String generateAccessToken(String userEmail, Map<String, Object> extraClaims) {
         return buildToken(userEmail, extraClaims, "access", accessTokenExpiration);
     }
@@ -55,7 +58,7 @@ public class JwtService {
                 .audience().add(audience).and() // Add audience
                 .claims(extraClaims) // Add roles as a custom claim
                 .claim("type", tokenType)
-                .signWith(getSignInKey())
+                .signWith(keyPair.getPrivate())
                 .compact();
     }
 
@@ -97,7 +100,7 @@ public class JwtService {
         try {
             return Jwts
                     .parser()
-                    .verifyWith(getSignInKey())
+                    .verifyWith(keyPair.getPublic())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
