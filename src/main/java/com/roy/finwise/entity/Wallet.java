@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +31,8 @@ public class Wallet {
     private BigDecimal spendingLimits;
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.PERSIST)
-    private Set<Transaction> transactions;
+    @Builder.Default
+    private Set<Transaction> transactions = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
