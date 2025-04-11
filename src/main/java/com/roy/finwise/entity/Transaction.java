@@ -33,7 +33,7 @@ public class Transaction {
     @ManyToOne
     private Category category;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -48,6 +48,10 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "wallet_id")
+    private Wallet wallet;
 
     @Override
     public boolean equals(Object o) {

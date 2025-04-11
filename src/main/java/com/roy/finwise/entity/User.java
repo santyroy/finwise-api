@@ -48,6 +48,10 @@ public class User {
 
     private boolean enabled;
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Builder.Default
+    private Set<Wallet> wallets = new HashSet<>();
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
