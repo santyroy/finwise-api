@@ -54,7 +54,15 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public WalletResponse updateWallet(String walletId, WalletRequest walletRequest) {
-        return null;
+        Wallet wallet = getWallet(walletId);
+        if(walletRequest.name() != null) {
+            wallet.setName(walletRequest.name());
+        }
+        if(walletRequest.spendingLimits() != null) {
+            wallet.setSpendingLimits(walletRequest.spendingLimits());
+        }
+        Wallet updatedWallet = walletRepository.save(wallet);
+        return MapperUtil.walletEntityToDto(updatedWallet);
     }
 
     @Override
