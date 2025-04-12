@@ -34,6 +34,15 @@ public class MapperUtil {
                 .build();
     }
 
+    public static User userDtoToEntity(SignupRequest userRequest) {
+        return User.builder()
+                .name(userRequest.getName())
+                .email(userRequest.getEmail())
+                .password(userRequest.getPassword())
+                .mobileNumber(userRequest.getMobileNumber())
+                .build();
+    }
+
     public static TransactionResponse transactionEntityToDto(Transaction transaction) {
         return TransactionResponse.builder()
                 .id(transaction.getId())

@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
     private long refreshTokenExpiration;
 
     @Override
-    public UserResponse registerUser(UserRequest request) {
+    public UserResponse registerUser(SignupRequest request) {
         log.info("Creating user with email: {}", request.getEmail());
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isPresent()) {
