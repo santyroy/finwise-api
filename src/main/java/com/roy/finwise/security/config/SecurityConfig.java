@@ -35,7 +35,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
 
-    private final String[] csrfExcludeEndpoints = {"/api/v1/auth/**", "/api/v1/transactions/**", "/api/v1/wallets/**"};
+    private final String[] csrfExcludeEndpoints = {"/api/v1/auth/**", "/api/v1/transactions/**", "/api/v1/wallets/**", "/api/v1/users/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
