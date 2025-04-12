@@ -1,15 +1,11 @@
 package com.roy.finwise.util;
 
-import com.roy.finwise.dto.TransactionRequest;
-import com.roy.finwise.dto.TransactionResponse;
-import com.roy.finwise.dto.UserRequest;
-import com.roy.finwise.dto.UserResponse;
-import com.roy.finwise.entity.Category;
-import com.roy.finwise.entity.Transaction;
-import com.roy.finwise.entity.TransactionType;
-import com.roy.finwise.entity.User;
+import com.roy.finwise.dto.*;
+import com.roy.finwise.entity.*;
 
 import java.time.Instant;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MapperUtil {
 
@@ -55,6 +51,19 @@ public class MapperUtil {
                 .name(user.getName())
                 .email(user.getEmail())
                 .mobileNumber(user.getMobileNumber())
+                .build();
+    }
+
+    public static WalletResponse walletEntityToDto(Wallet wallet) {
+        Set<TransactionResponse> transactions = wallet.getTransactions().stream()
+                .map(MapperUtil::transactionEntityToDto).collect(Collectors.toSet());
+        return WalletResponse.builder()
+                .id(wallet.getId().toString())
+                .name(wallet.getName())
+                .spendingLimits(wallet.getSpendingLimits())
+                .transactions(transactions)
+                .createdAt(wallet.getCreatedAt())
+                .updatedAt(wallet.getUpdatedAt())
                 .build();
     }
 }
