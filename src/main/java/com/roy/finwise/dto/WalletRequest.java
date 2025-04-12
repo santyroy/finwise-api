@@ -7,5 +7,7 @@ import java.math.BigDecimal;
 public record WalletRequest(
         @NotBlank(message = "Wallet name is mandatory")
         String name,
-        BigDecimal spendingLimits) {
+        BigDecimal spendingLimits,
+        @NotBlank(message = "User Id is mandatory")
+        String userId) {
 }
