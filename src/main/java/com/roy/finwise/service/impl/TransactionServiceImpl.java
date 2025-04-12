@@ -2,13 +2,11 @@ package com.roy.finwise.service.impl;
 
 import com.roy.finwise.dto.TransactionRequest;
 import com.roy.finwise.dto.TransactionResponse;
-import com.roy.finwise.entity.Category;
-import com.roy.finwise.entity.Transaction;
-import com.roy.finwise.entity.TransactionType;
-import com.roy.finwise.entity.User;
+import com.roy.finwise.entity.*;
 import com.roy.finwise.exceptions.NotFoundException;
 import com.roy.finwise.repository.CategoryRepository;
 import com.roy.finwise.repository.TransactionRepository;
+import com.roy.finwise.repository.WalletRepository;
 import com.roy.finwise.service.TransactionService;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,6 +29,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
+    private final WalletRepository walletRepository;
     private final UserServiceImpl userService;
 
     @Override
@@ -38,6 +38,10 @@ public class TransactionServiceImpl implements TransactionService {
         Category category = findCategoryByName(transactionRequest.getCategory().toUpperCase());
         User user = userService.findById(transactionRequest.getUserId());
         Transaction newTransaction = MapperUtil.transactionDtoToEntity(transactionRequest, category, user);
+        if(transactionRequest.getWalletId() != null && !transactionRequest.getWalletId().isEmpty()) {
+            Optional<Wallet> walletOpt = walletRepository.findById(UUID.fromString(transactionRequest.getWalletId()));
+            walletOpt.ifPresent(newTransaction::setWallet);
+        }
         Transaction savedTransaction = transactionRepository.save(newTransaction);
         log.info("Transaction saved with ID: {}", savedTransaction.getId());
         return MapperUtil.transactionEntityToDto(savedTransaction);
@@ -82,6 +86,10 @@ public class TransactionServiceImpl implements TransactionService {
         }
         if (transactionRequest.getTags() != null && !transactionRequest.getTags().isEmpty()) {
             existingTransaction.setTags(transactionRequest.getTags());
+        }
+        if(transactionRequest.getWalletId() != null && !transactionRequest.getWalletId().isEmpty()) {
+            Optional<Wallet> walletOpt = walletRepository.findById(UUID.fromString(transactionRequest.getWalletId()));
+            walletOpt.ifPresent(existingTransaction::setWallet);
         }
         Transaction updatedTransaction = transactionRepository.save(existingTransaction);
         return MapperUtil.transactionEntityToDto(updatedTransaction);
