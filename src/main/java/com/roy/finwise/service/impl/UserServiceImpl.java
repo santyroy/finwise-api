@@ -2,10 +2,12 @@ package com.roy.finwise.service.impl;
 
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.entity.RefreshToken;
 import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
 import com.roy.finwise.exceptions.NotFoundException;
 import com.roy.finwise.exceptions.UserAlreadyExistException;
+import com.roy.finwise.repository.RefreshTokenRepository;
 import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.service.UserService;
@@ -28,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -78,7 +81,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserByEmail(String email) {
-        userRepository.delete(findByEmail(email));
+        User user = findByEmail(email);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUser(user);
+        refreshToken.ifPresent(refreshTokenRepository::delete);
+        refreshTokenRepository.flush();
+        userRepository.delete(user);
     }
 
     private User findByEmail(String email) {
