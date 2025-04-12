@@ -1,4 +1,4 @@
-package com.roy.finwise.service;
+package com.roy.finwise.repository;
 
 import com.roy.finwise.entity.RefreshToken;
 import com.roy.finwise.entity.User;
