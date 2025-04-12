@@ -10,7 +10,7 @@ import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.security.service.JwtService;
 import com.roy.finwise.service.AuthService;
 import com.roy.finwise.service.OtpService;
-import com.roy.finwise.service.RefreshTokenRepository;
+import com.roy.finwise.repository.RefreshTokenRepository;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
