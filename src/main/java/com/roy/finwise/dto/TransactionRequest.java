@@ -28,6 +28,7 @@ public class TransactionRequest {
     private String category;
     private String description;
     private Set<String> tags;
+    private String walletId;
 
     @NotBlank(message = "UserId is mandatory")
     private String userId;
