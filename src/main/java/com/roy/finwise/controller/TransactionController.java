@@ -1,5 +1,6 @@
 package com.roy.finwise.controller;
 
+import com.roy.finwise.dto.ApiResponse;
 import com.roy.finwise.dto.PageDTO;
 import com.roy.finwise.dto.TransactionRequest;
 import com.roy.finwise.dto.TransactionResponse;
@@ -12,6 +13,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +26,12 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final PagedResourcesAssembler<TransactionResponse> pagedResourcesAssembler;
 
-    @PostMapping
-    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<TransactionResponse>> createTransaction(@Valid @RequestBody TransactionRequest request) {
         TransactionResponse transactionResponse = transactionService.createTransaction(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Transaction creation successful", transactionResponse));
     }
+
     /*
     NOT RECOMMENDED APPROACH
     Serializing PageImpl instances as-is is not supported,
@@ -77,16 +80,16 @@ public class TransactionController {
         return pagedResourcesAssembler.toModel(allTransactions);
     }
 
-    @PutMapping("{transactionId}")
-    public ResponseEntity<TransactionResponse> updateTransactionById(@PathVariable String transactionId,
-                                                                     @Valid @RequestBody TransactionRequest request) {
+    @PutMapping(value = "{transactionId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<TransactionResponse>> updateTransactionById(@PathVariable String transactionId,
+                                                                                  @Valid @RequestBody TransactionRequest request) {
         TransactionResponse transactionResponse = transactionService.updateTransaction(transactionId, request);
-        return ResponseEntity.ok(transactionResponse);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Transaction update successful", transactionResponse));
     }
 
-    @DeleteMapping("{transactionId}")
-    public ResponseEntity<String> deleteTransactionById(@PathVariable String transactionId) {
+    @DeleteMapping(value = "{transactionId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<String>> deleteTransactionById(@PathVariable String transactionId) {
         transactionService.deleteTransaction(transactionId);
-        return ResponseEntity.ok("Transaction deleted successfully");
+        return ResponseEntity.ok(new ApiResponse<>(true, "Transaction deletion successful", null));
     }
 }

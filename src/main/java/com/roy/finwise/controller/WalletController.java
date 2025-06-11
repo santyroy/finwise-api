@@ -1,5 +1,6 @@
 package com.roy.finwise.controller;
 
+import com.roy.finwise.dto.ApiResponse;
 import com.roy.finwise.dto.WalletRequest;
 import com.roy.finwise.dto.WalletResponse;
 import com.roy.finwise.service.WalletService;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,34 +22,34 @@ public class WalletController {
 
     private final WalletService walletService;
 
-    @PostMapping
-    public ResponseEntity<WalletResponse> createWallet(@Valid @RequestBody WalletRequest request) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<WalletResponse>> createWallet(@Valid @RequestBody WalletRequest request) {
         WalletResponse walletResponse = walletService.createWallet(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(walletResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Wallet creation successful", walletResponse));
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<WalletResponse> getWalletById(@PathVariable String id) {
+    @GetMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<WalletResponse>> getWalletById(@PathVariable String id) {
         WalletResponse walletResponse = walletService.getWalletById(id);
-        return ResponseEntity.ok(walletResponse);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Wallet retrieval successful", walletResponse));
     }
 
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<List<WalletResponse>> getAllWalletByUser(@PathVariable String userId) {
+    @GetMapping(value = "/users/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<List<WalletResponse>>> getAllWalletByUser(@PathVariable String userId) {
         List<WalletResponse> wallets = walletService.getAllWallets(userId);
-        return ResponseEntity.ok(wallets);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Wallets retrieval successful", wallets));
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<WalletResponse> updateWalletById(@PathVariable String id,
-                                                           @Valid @RequestBody WalletRequest walletRequest) {
+    @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<WalletResponse>> updateWalletById(@PathVariable String id,
+                                                                        @Valid @RequestBody WalletRequest walletRequest) {
         WalletResponse walletResponse = walletService.updateWallet(id, walletRequest);
-        return ResponseEntity.ok(walletResponse);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Wallet updation successful", walletResponse));
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteWalletById(@PathVariable String id) {
+    @DeleteMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<String>> deleteWalletById(@PathVariable String id) {
         walletService.deleteWallet(id);
-        return ResponseEntity.ok("Wallet deleted successfully");
+        return ResponseEntity.ok(new ApiResponse<>(true, "Wallet deleted successfully", null));
     }
 }

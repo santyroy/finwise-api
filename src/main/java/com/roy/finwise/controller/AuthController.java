@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,39 +22,39 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Endpoint for user to login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse loginResponse = authService.login(request);
-        return ResponseEntity.ok(loginResponse);
+        return ResponseEntity.ok(new ApiResponse<>(true, "User login successful", loginResponse));
     }
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Endpoint for user to signup")
-    public ResponseEntity<UserResponse> signup(@RequestBody @Valid SignupRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> signup(@RequestBody @Valid SignupRequest request) {
         UserResponse userResponse = authService.registerUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "User signup successful", userResponse));
     }
 
-    @PostMapping("/confirm")
+    @PostMapping(value = "/confirm", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Endpoint for user to confirm email")
-    public ResponseEntity<String> signupConfirmation(@Valid @RequestBody SignupConfirmRequest request) {
+    public ResponseEntity<ApiResponse<String>> signupConfirmation(@Valid @RequestBody SignupConfirmRequest request) {
         boolean isValid = authService.confirmUserSignup(request);
-        return isValid ? ResponseEntity.ok("User registration successful")
-                : ResponseEntity.badRequest().body("Invalid OTP or Email");
+        return isValid ? ResponseEntity.ok(new ApiResponse<>(true, "User verification successful", null))
+                : ResponseEntity.badRequest().body(new ApiResponse<>(false, "Invalid OTP or Email", null));
     }
 
-    @PostMapping("/resendOtp")
+    @PostMapping(value = "/resendOtp", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Endpoint for user to resend OTP")
-    public ResponseEntity<String> resendOtp(@Valid @RequestBody ResendOTP request) {
+    public ResponseEntity<ApiResponse<String>> resendOtp(@Valid @RequestBody ResendOTP request) {
         authService.resendOtp(request);
-        return ResponseEntity.ok("Otp sent successfully");
+        return ResponseEntity.ok(new ApiResponse<>(true, "Otp sent successfully", null));
     }
 
-    @PostMapping("/refresh")
+    @PostMapping(value = "/refresh", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Endpoint for user to generate new access token using refresh token")
-    public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<ApiResponse<RefreshTokenResponse>> refresh(@RequestBody RefreshTokenRequest request) {
         RefreshTokenResponse refreshTokenResponse = authService.refreshToken(request);
-        return ResponseEntity.ok(refreshTokenResponse);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Refresh token validation successful", refreshTokenResponse));
     }
 }

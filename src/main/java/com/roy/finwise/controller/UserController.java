@@ -1,5 +1,6 @@
 package com.roy.finwise.controller;
 
+import com.roy.finwise.dto.ApiResponse;
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
 import com.roy.finwise.service.UserService;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,34 +20,34 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody UserRequest userRequest) {
         UserResponse user = userService.createUser(userRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "User creation successful", user));
     }
 
-    @GetMapping("/id/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable String userId) {
+    @GetMapping(value = "/id/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable String userId) {
         UserResponse user = userService.findUserById(userId);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(new ApiResponse<>(true, "User retrieval successful", user));
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
+    @GetMapping(value = "/email/{email}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@PathVariable String email) {
         UserResponse user = userService.findUserByEmail(email);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(new ApiResponse<>(true, "User retrieval successful", user));
     }
 
-    @PutMapping("{email}")
-    public ResponseEntity<UserResponse> updateUserByEmail(@PathVariable String email,@Valid @RequestBody UserRequest userRequest) {
+    @PutMapping(value = "{email}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<UserResponse>> updateUserByEmail(@PathVariable String email, @Valid @RequestBody UserRequest userRequest) {
         UserResponse user = userService.updateUserByEmail(email, userRequest);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(new ApiResponse<>(true, "User update successful", user));
     }
 
-    @DeleteMapping("{email}")
-    public ResponseEntity<String> deleteUserByEmail(@PathVariable String email) {
+    @DeleteMapping(value = "{email}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<String>> deleteUserByEmail(@PathVariable String email) {
         userService.deleteUserByEmail(email);
-        return ResponseEntity.ok("User deleted successfully");
+        return ResponseEntity.ok(new ApiResponse<>(true, "User deletion successful", null));
     }
 
 }
