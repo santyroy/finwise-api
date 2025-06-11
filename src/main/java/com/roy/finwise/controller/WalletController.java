@@ -3,6 +3,7 @@ package com.roy.finwise.controller;
 import com.roy.finwise.dto.WalletRequest;
 import com.roy.finwise.dto.WalletResponse;
 import com.roy.finwise.service.WalletService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
+@Tag(name = "Wallet API", description = "All endpoint for wallet related operation")
 public class WalletController {
 
     private final WalletService walletService;

@@ -4,6 +4,7 @@ import com.roy.finwise.dto.PageDTO;
 import com.roy.finwise.dto.TransactionRequest;
 import com.roy.finwise.dto.TransactionResponse;
 import com.roy.finwise.service.TransactionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
+@Tag(name = "Transaction API", description = "All endpoint for transaction related operation")
 public class TransactionController {
 
     private final TransactionService transactionService;

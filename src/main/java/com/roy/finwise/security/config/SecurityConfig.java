@@ -42,7 +42,7 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.csrf(csrf -> csrf.ignoringRequestMatchers(csrfExcludeEndpoints));
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/api/v1/auth/**").permitAll();
+            auth.requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
             auth.anyRequest().authenticated();
         });
         http.sessionManagement(session ->
