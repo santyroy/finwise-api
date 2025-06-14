@@ -2,16 +2,11 @@ package com.roy.finwise.service.impl;
 
 import com.roy.finwise.entity.Otp;
 import com.roy.finwise.entity.OtpPurpose;
-import com.roy.finwise.event.OtpSentEvent;
 import com.roy.finwise.repository.OtpRepository;
 import com.roy.finwise.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -21,43 +16,28 @@ import java.time.temporal.ChronoUnit;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EmailOtpService implements OtpService {
+public class OtpServiceImpl implements OtpService {
 
     private final OtpRepository otpRepository;
-    private final JavaMailSender mailSender;
-    private final ApplicationEventPublisher eventPublisher;
+    private final EmailService emailService;
+
     @Value("${application.otp.expiry}")
     private String otpExpiry;
 
     @Override
-    @Async
     public void sendOtp(String email, OtpPurpose otpPurpose) {
 
-        try {
-            // Generate a random 6-digit OTP
-            String otp = generateOtp();
-            log.info("Generated OTP for email: {}", email);
+        // Generate a random 6-digit OTP
+        String otp = generateOtp();
+        log.info("Generated OTP for email: {}", email);
 
-            // Save OTP to database with expiration time
-            saveOtp(email, otp, otpPurpose);
-            log.info("Saved OTP to database for email: {}", email);
+        // Save OTP to database with expiration time
+        saveOtp(email, otp, otpPurpose);
+        log.info("Saved OTP to database for email: {}", email);
 
-            // Send email
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject(getEmailSubject(otpPurpose));
-            message.setText("Your OTP code is: " + otp + ". It will expire in " + otpExpiry + " minutes.");
+        // Send email
+        emailService.sendEmail(otp, email, otpPurpose);
 
-            mailSender.send(message);
-            log.info("Successfully sent OTP email to: {}", email);
-
-            // Publish success event
-            eventPublisher.publishEvent(new OtpSentEvent(email, true));
-        } catch (Exception e) {
-            // Publish failure event
-            log.error("Failed to send OTP to {}: {}", email, e.getMessage(), e);
-            eventPublisher.publishEvent(new OtpSentEvent(email, false, e.getMessage()));
-        }
     }
 
     @Override
@@ -109,14 +89,7 @@ public class EmailOtpService implements OtpService {
 
         // If there's an existing OTP, delete it first
         otpRepository.deleteByEmail(email);
+        otpRepository.flush();
         otpRepository.save(otpEntity);
-    }
-
-    private String getEmailSubject(OtpPurpose otpPurpose) {
-        return switch (otpPurpose) {
-            case ACCOUNT_VERIFICATION -> "Your OTP for Account Verification";
-            case PASSWORD_RESET -> "Your OTP for Password Reset";
-            case EMAIL_CHANGE -> "Your OTP for Email Change";
-        };
     }
 }
