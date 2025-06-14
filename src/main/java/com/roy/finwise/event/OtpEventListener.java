@@ -47,7 +47,7 @@ public class OtpEventListener {
         Otp otpEntity = otpRepository.findByEmail(email).orElse(null);
         if (otpEntity != null) {
             otpEntity.setEmailSent(false);
-            otpEntity.setFailureReason(errorMessage);
+            otpEntity.setDeliveryFailureReason(errorMessage);
             otpRepository.save(otpEntity);
         }
 

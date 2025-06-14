@@ -1,17 +1,19 @@
 package com.roy.finwise.service.impl;
 
 import com.roy.finwise.dto.*;
+import com.roy.finwise.entity.OtpPurpose;
 import com.roy.finwise.entity.RefreshToken;
 import com.roy.finwise.entity.Role;
 import com.roy.finwise.entity.User;
 import com.roy.finwise.exceptions.*;
+import com.roy.finwise.repository.RefreshTokenRepository;
 import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
 import com.roy.finwise.security.service.JwtService;
 import com.roy.finwise.service.AuthService;
 import com.roy.finwise.service.OtpService;
-import com.roy.finwise.repository.RefreshTokenRepository;
 import com.roy.finwise.util.MapperUtil;
+import com.roy.finwise.util.OtpUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
     private final OtpService otpService;
+    private final OtpUtil otpUtil;
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshTokenExpiration;
@@ -64,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
         Role role = roleRepository.findByName("USER").orElseGet(() -> roleRepository.save(new Role("USER")));
         newUser.setRoles(Set.of(role));
         User savedUser = userRepository.save(newUser);
-        otpService.sendOtp(request.getEmail());
+        otpService.sendOtp(request.getEmail(), OtpPurpose.ACCOUNT_VERIFICATION);
         log.info("Successfully created user with ID: {}", savedUser.getId());
         return MapperUtil.userEntityToDto(savedUser);
     }
@@ -127,7 +130,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean confirmUserSignup(SignupConfirmRequest request) {
-        boolean isValid = otpService.validateOtp(request.email(), request.otp());
+        OtpPurpose otpPurpose = otpUtil.resolveAllowedPurpose(request.otpPurpose());
+        boolean isValid = otpService.validateOtp(request.email(), request.otp(), otpPurpose);
         if (isValid) {
             User user = getUser(request.email());
             user.setEnabled(true);
@@ -139,7 +143,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void resendOtp(ResendOTP request) {
-        otpService.sendOtp(request.email());
+        OtpPurpose otpPurpose = otpUtil.resolveAllowedPurpose(request.otpPurpose());
+        otpService.sendOtp(request.email(), otpPurpose);
     }
 
     private User getUser(String email) {

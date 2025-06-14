@@ -1,11 +1,13 @@
 package com.roy.finwise.service.impl;
 
 import com.roy.finwise.entity.Otp;
+import com.roy.finwise.entity.OtpPurpose;
 import com.roy.finwise.event.OtpSentEvent;
 import com.roy.finwise.repository.OtpRepository;
 import com.roy.finwise.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,10 +26,12 @@ public class EmailOtpService implements OtpService {
     private final OtpRepository otpRepository;
     private final JavaMailSender mailSender;
     private final ApplicationEventPublisher eventPublisher;
+    @Value("${application.otp.expiry}")
+    private String otpExpiry;
 
     @Override
     @Async
-    public void sendOtp(String email) {
+    public void sendOtp(String email, OtpPurpose otpPurpose) {
 
         try {
             // Generate a random 6-digit OTP
@@ -41,8 +45,8 @@ public class EmailOtpService implements OtpService {
             // Send email
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(email);
-            message.setSubject("Your OTP Code");
-            message.setText("Your OTP code is: " + otp + ". It will expire in 10 minutes.");
+            message.setSubject(getEmailSubject(otpPurpose));
+            message.setText("Your OTP code is: " + otp + ". It will expire in " + otpExpiry + " minutes.");
 
             mailSender.send(message);
             log.info("Successfully sent OTP email to: {}", email);
@@ -57,7 +61,7 @@ public class EmailOtpService implements OtpService {
     }
 
     @Override
-    public boolean validateOtp(String email, String otp) {
+    public boolean validateOtp(String email, String otp, OtpPurpose otpPurpose) {
         Otp otpEntity = otpRepository.findByEmail(email)
                 .orElse(null);
 
@@ -67,6 +71,12 @@ public class EmailOtpService implements OtpService {
 
         // Check if OTP has expired
         if (Instant.now().isAfter(otpEntity.getExpiry())) {
+            otpRepository.delete(otpEntity);
+            return false;
+        }
+
+        // Check if OTP has doesn't have valid otpPurpose
+        if (otpEntity.getOtpPurpose().equals(otpPurpose)) {
             otpRepository.delete(otpEntity);
             return false;
         }
@@ -89,9 +99,10 @@ public class EmailOtpService implements OtpService {
     }
 
     private void saveOtp(String email, String otp) {
+        int exp = Integer.parseInt(otpExpiry);
         Otp otpEntity = Otp.builder()
                 .otpNumber(otp)
-                .expiry(Instant.now().plus(10, ChronoUnit.MINUTES))  // 10 minute expiry
+                .expiry(Instant.now().plus(exp, ChronoUnit.MINUTES))
                 .email(email)
                 .build();
 
@@ -100,4 +111,11 @@ public class EmailOtpService implements OtpService {
         otpRepository.save(otpEntity);
     }
 
+    private String getEmailSubject(OtpPurpose otpPurpose) {
+        return switch (otpPurpose) {
+            case ACCOUNT_VERIFICATION -> "Your OTP for Account Verification";
+            case PASSWORD_RESET -> "Your OTP for Password Reset";
+            case EMAIL_CHANGE -> "Your OTP for Email Change";
+        };
+    }
 }

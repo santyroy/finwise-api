@@ -25,5 +25,6 @@ public class Otp {
     @Builder.Default
     private boolean emailSent = false;
     private Instant sentAt;
-    private String failureReason;
+    private String deliveryFailureReason;
+    private OtpPurpose otpPurpose;
 }
