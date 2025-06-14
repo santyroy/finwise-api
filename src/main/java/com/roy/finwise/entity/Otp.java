@@ -26,5 +26,6 @@ public class Otp {
     private boolean emailSent = false;
     private Instant sentAt;
     private String deliveryFailureReason;
+    @Enumerated(EnumType.STRING)
     private OtpPurpose otpPurpose;
 }
