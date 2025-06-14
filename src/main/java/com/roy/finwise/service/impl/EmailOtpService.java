@@ -76,7 +76,7 @@ public class EmailOtpService implements OtpService {
         }
 
         // Check if OTP has doesn't have valid otpPurpose
-        if (otpEntity.getOtpPurpose().equals(otpPurpose)) {
+        if (!otpEntity.getOtpPurpose().equals(otpPurpose)) {
             otpRepository.delete(otpEntity);
             return false;
         }
