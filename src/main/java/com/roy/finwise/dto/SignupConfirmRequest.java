@@ -9,5 +9,7 @@ public record SignupConfirmRequest(
         String otp,
         @NotBlank(message = "Email is mandatory")
         @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Incorrect email format")
-        String email) {
+        String email,
+        @NotBlank(message = "OTP purpose is mandatory")
+        String otpPurpose) {
 }
