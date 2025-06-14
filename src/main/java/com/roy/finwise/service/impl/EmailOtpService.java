@@ -39,7 +39,7 @@ public class EmailOtpService implements OtpService {
             log.info("Generated OTP for email: {}", email);
 
             // Save OTP to database with expiration time
-            saveOtp(email, otp);
+            saveOtp(email, otp, otpPurpose);
             log.info("Saved OTP to database for email: {}", email);
 
             // Send email
@@ -98,12 +98,13 @@ public class EmailOtpService implements OtpService {
         return String.valueOf(otp);
     }
 
-    private void saveOtp(String email, String otp) {
+    private void saveOtp(String email, String otp, OtpPurpose otpPurpose) {
         int exp = Integer.parseInt(otpExpiry);
         Otp otpEntity = Otp.builder()
                 .otpNumber(otp)
                 .expiry(Instant.now().plus(exp, ChronoUnit.MINUTES))
                 .email(email)
+                .otpPurpose(otpPurpose)
                 .build();
 
         // If there's an existing OTP, delete it first
