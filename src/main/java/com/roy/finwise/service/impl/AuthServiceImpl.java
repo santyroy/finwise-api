@@ -147,6 +147,19 @@ public class AuthServiceImpl implements AuthService {
         otpService.sendOtp(request.email(), otpPurpose);
     }
 
+    @Override
+    public boolean resetPassword(ResetPasswordRequest request) {
+        User user = getUser(request.email());
+        OtpPurpose otpPurpose = otpUtil.resolveAllowedPurpose(request.otpPurpose());
+        boolean isValid = otpService.validateOtp(user.getEmail(), request.otp(), otpPurpose);
+        if (isValid) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
     private User getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));

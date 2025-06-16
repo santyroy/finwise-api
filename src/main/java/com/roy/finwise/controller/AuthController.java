@@ -57,4 +57,11 @@ public class AuthController {
         RefreshTokenResponse refreshTokenResponse = authService.refreshToken(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Refresh token validation successful", refreshTokenResponse));
     }
+
+    @PostMapping(value = "/resetPassword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        boolean isSuccess = authService.resetPassword(request);
+        return isSuccess ? ResponseEntity.ok(new ApiResponse<>(true, "Password update successful", null))
+                : ResponseEntity.badRequest().body(new ApiResponse<>(false, "Invalid OTP or Email", null));
+    }
 }
