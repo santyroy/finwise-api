@@ -4,6 +4,7 @@ import com.roy.finwise.entity.TransactionType;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,4 +21,5 @@ public class TransactionResponse {
     private String category;
     private String description;
     private Set<String> tags;
+    private Instant createdAt;
 }

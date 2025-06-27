@@ -51,6 +51,7 @@ public class MapperUtil {
                 .category(transaction.getCategory().getName())
                 .description(transaction.getDescription())
                 .tags(transaction.getTags())
+                .createdAt(transaction.getCreatedAt())
                 .build();
     }
 
