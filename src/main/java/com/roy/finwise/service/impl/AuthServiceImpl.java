@@ -1,14 +1,12 @@
 package com.roy.finwise.service.impl;
 
 import com.roy.finwise.dto.*;
-import com.roy.finwise.entity.OtpPurpose;
-import com.roy.finwise.entity.RefreshToken;
-import com.roy.finwise.entity.Role;
-import com.roy.finwise.entity.User;
+import com.roy.finwise.entity.*;
 import com.roy.finwise.exceptions.*;
 import com.roy.finwise.repository.RefreshTokenRepository;
 import com.roy.finwise.repository.RoleRepository;
 import com.roy.finwise.repository.UserRepository;
+import com.roy.finwise.repository.WalletRepository;
 import com.roy.finwise.security.service.JwtService;
 import com.roy.finwise.service.AuthService;
 import com.roy.finwise.service.OtpService;
@@ -28,8 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
@@ -44,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final WalletRepository walletRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authManager;
@@ -132,13 +133,24 @@ public class AuthServiceImpl implements AuthService {
     public boolean confirmUserSignup(SignupConfirmRequest request) {
         OtpPurpose otpPurpose = otpUtil.resolveAllowedPurpose(request.otpPurpose());
         boolean isValid = otpService.validateOtp(request.email(), request.otp(), otpPurpose);
-        if (isValid) {
-            User user = getUser(request.email());
-            user.setEnabled(true);
-            userRepository.save(user);
-            return true;
+        if (!isValid) {
+            return false;
         }
-        return false;
+        User user = getUser(request.email());
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        // create default wallet
+        LocalDateTime now = LocalDateTime.now();
+        Wallet defaultWallet = Wallet.builder()
+                .name("My First Wallet")
+                .spendingLimits(BigDecimal.ZERO)
+                .user(user)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+        walletRepository.save(defaultWallet);
+        return true;
     }
 
     @Override
