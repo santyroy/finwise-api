@@ -87,7 +87,7 @@ public class TransactionController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Transaction update successful", transactionResponse));
     }
 
-    @DeleteMapping(value = "{transactionId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "{transactionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<String>> deleteTransactionById(@PathVariable String transactionId) {
         transactionService.deleteTransaction(transactionId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Transaction deletion successful", null));

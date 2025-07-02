@@ -26,13 +26,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "User creation successful", user));
     }
 
-    @GetMapping(value = "/id/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/id/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable String userId) {
         UserResponse user = userService.findUserById(userId);
         return ResponseEntity.ok(new ApiResponse<>(true, "User retrieval successful", user));
     }
 
-    @GetMapping(value = "/email/{email}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/email/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@PathVariable String email) {
         UserResponse user = userService.findUserByEmail(email);
         return ResponseEntity.ok(new ApiResponse<>(true, "User retrieval successful", user));
@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(true, "User update successful", user));
     }
 
-    @DeleteMapping(value = "{email}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<String>> deleteUserByEmail(@PathVariable String email) {
         userService.deleteUserByEmail(email);
         return ResponseEntity.ok(new ApiResponse<>(true, "User deletion successful", null));

@@ -28,13 +28,13 @@ public class WalletController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Wallet creation successful", walletResponse));
     }
 
-    @GetMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<WalletResponse>> getWalletById(@PathVariable String id) {
         WalletResponse walletResponse = walletService.getWalletById(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Wallet retrieval successful", walletResponse));
     }
 
-    @GetMapping(value = "/users/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<List<WalletResponse>>> getAllWalletByUser(@PathVariable String userId) {
         List<WalletResponse> wallets = walletService.getAllWallets(userId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Wallets retrieval successful", wallets));
@@ -47,7 +47,7 @@ public class WalletController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Wallet updation successful", walletResponse));
     }
 
-    @DeleteMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<String>> deleteWalletById(@PathVariable String id) {
         walletService.deleteWallet(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Wallet deleted successfully", null));
