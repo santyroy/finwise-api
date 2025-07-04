@@ -88,6 +88,12 @@ public class ExceptionsHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, errorMessage, request, null);
     }
 
+    @ExceptionHandler(InvalidPeriodException.class)
+    public ResponseEntity<ApiResponse<ApiErrorResponse>> handleInvalidPeriodException(Exception ex, WebRequest request) {
+        log.error("InvalidPeriodException: {}", ex.getMessage(), ex);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
+    }
+
     private ResponseEntity<ApiResponse<ApiErrorResponse>> buildErrorResponse(
             HttpStatus status, String message, WebRequest request, List<String> details) {
         ApiErrorResponse errorResponse = ApiErrorResponse.builder()
