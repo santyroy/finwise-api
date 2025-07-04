@@ -58,20 +58,4 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Dashboard data retrieval successful", response));
     }
 
-//    TODO: Create a new endpoint for home screen -> GET /api/v1/users/{userId}/dashboard
-//    GET /dashboard?period=this_month
-//    GET /dashboard?period=lifetime
-//    GET /dashboard?from=2025-07-01&to=2025-07-10
-//
-//    BigDecimal totalIncome = transactionRepository.sumByTypeAndDateRange(userId, INCOME, fromDate, toDate);
-//    BigDecimal totalExpense = transactionRepository.sumByTypeAndDateRange(userId, EXPENSE, fromDate, toDate);
-//
-//    {
-//        "totalIncomeThisMonth":9800,
-//        "totalExpenseThisMonth":7200,
-//        "lifetimeExpense":289000,
-//        "wallets": [...],
-//        "recentTransactions": [...]
-//    }
-
 }
