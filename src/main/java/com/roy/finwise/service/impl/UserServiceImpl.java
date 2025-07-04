@@ -1,23 +1,25 @@
 package com.roy.finwise.service.impl;
 
-import com.roy.finwise.dto.UserRequest;
-import com.roy.finwise.dto.UserResponse;
-import com.roy.finwise.entity.RefreshToken;
-import com.roy.finwise.entity.Role;
-import com.roy.finwise.entity.User;
+import com.roy.finwise.dto.*;
+import com.roy.finwise.entity.*;
+import com.roy.finwise.exceptions.InvalidPeriodException;
 import com.roy.finwise.exceptions.NotFoundException;
 import com.roy.finwise.exceptions.UserAlreadyExistException;
-import com.roy.finwise.repository.RefreshTokenRepository;
-import com.roy.finwise.repository.RoleRepository;
-import com.roy.finwise.repository.UserRepository;
+import com.roy.finwise.repository.*;
 import com.roy.finwise.service.UserService;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.*;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +32,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final TransactionRepository transactionRepository;
+    private final WalletRepository walletRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -88,6 +92,29 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+    @Override
+    public DashboardResponse getDashboardDetailsByUser(String userId, String period) {
+        try {
+            YearMonth periodMonth = YearMonth.parse(period);
+            LocalDate startDate = periodMonth.atDay(1);
+            LocalDate endDate = periodMonth.atEndOfMonth();
+            ZoneId zoneId = ZoneOffset.UTC;
+            Instant startInstant = startDate.atStartOfDay(zoneId).toInstant();
+            Instant endInstant = endDate.plusDays(1).atStartOfDay(zoneId).toInstant();
+            User user = findById(userId);
+            PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(user, startInstant, endInstant, pageRequest);
+            List<TransactionResponse> transactionResponses = transactions.stream().map(MapperUtil::transactionEntityToDto).toList();
+            BigDecimal totalIncome = calculateTotal(transactions, TransactionType.CREDIT);
+            BigDecimal totalExpense = calculateTotal(transactions, TransactionType.DEBIT);
+            List<Wallet> wallets = walletRepository.findByUser(user);
+            List<DashboardWallets> dashboardWallets = wallets.stream().map(wallet -> new DashboardWallets(wallet.getId().toString(), wallet.getName())).toList();
+            return new DashboardResponse(totalIncome, totalExpense, dashboardWallets, transactionResponses);
+        } catch (DateTimeParseException ex) {
+            throw new InvalidPeriodException("Expected format YYYY-MM");
+        }
+    }
+
     private User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> {
             log.error("User with email: {} does not exist", email);
@@ -100,6 +127,13 @@ public class UserServiceImpl implements UserService {
             log.error("User with ID: {} does not exist", userId);
             return new NotFoundException("User with ID: " + userId + " not found");
         });
+    }
+
+    private BigDecimal calculateTotal(List<Transaction> transactions, TransactionType type) {
+        return transactions.stream()
+                .filter(transaction -> transaction.getType().equals(type))
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private String hashPassword(String password) {

@@ -1,6 +1,7 @@
 package com.roy.finwise.controller;
 
 import com.roy.finwise.dto.ApiResponse;
+import com.roy.finwise.dto.DashboardResponse;
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
 import com.roy.finwise.service.UserService;
@@ -49,5 +50,28 @@ public class UserController {
         userService.deleteUserByEmail(email);
         return ResponseEntity.ok(new ApiResponse<>(true, "User deletion successful", null));
     }
+
+    @GetMapping(value = "{userId}/dashboard")
+    public ResponseEntity<ApiResponse<DashboardResponse>> getDashboardData(@PathVariable String userId,
+                                                                           @RequestParam(value = "period", defaultValue = "#{T(java.time.YearMonth).now().toString()}") String period) {
+        DashboardResponse response = userService.getDashboardDetailsByUser(userId, period);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Dashboard data retrieval successful", response));
+    }
+
+//    TODO: Create a new endpoint for home screen -> GET /api/v1/users/{userId}/dashboard
+//    GET /dashboard?period=this_month
+//    GET /dashboard?period=lifetime
+//    GET /dashboard?from=2025-07-01&to=2025-07-10
+//
+//    BigDecimal totalIncome = transactionRepository.sumByTypeAndDateRange(userId, INCOME, fromDate, toDate);
+//    BigDecimal totalExpense = transactionRepository.sumByTypeAndDateRange(userId, EXPENSE, fromDate, toDate);
+//
+//    {
+//        "totalIncomeThisMonth":9800,
+//        "totalExpenseThisMonth":7200,
+//        "lifetimeExpense":289000,
+//        "wallets": [...],
+//        "recentTransactions": [...]
+//    }
 
 }
