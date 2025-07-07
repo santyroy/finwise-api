@@ -15,5 +15,7 @@ import java.util.UUID;
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
     @EntityGraph(attributePaths = {"category", "tags"})
     Page<Transaction> findByUser(@Param("user") User user, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"category", "tags"})
     List<Transaction> findByUserAndCreatedAtBetween(User user, Instant startDate, Instant endDate, Pageable pageable);
 }
