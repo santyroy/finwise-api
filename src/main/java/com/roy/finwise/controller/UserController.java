@@ -53,8 +53,10 @@ public class UserController {
 
     @GetMapping(value = "{userId}/dashboard")
     public ResponseEntity<ApiResponse<DashboardResponse>> getDashboardData(@PathVariable String userId,
-                                                                           @RequestParam(value = "period", defaultValue = "#{T(java.time.YearMonth).now().toString()}") String period) {
-        DashboardResponse response = userService.getDashboardDetailsByUser(userId, period);
+                                                                           @RequestParam(value = "period", defaultValue = "#{T(java.time.YearMonth).now().toString()}") String period,
+                                                                           @RequestParam(value = "pageNo", defaultValue = "0") int pageNo,
+                                                                           @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        DashboardResponse response = userService.getDashboardDetailsByUser(userId, period, pageNo, pageSize);
         return ResponseEntity.ok(new ApiResponse<>(true, "Dashboard data retrieval successful", response));
     }
 

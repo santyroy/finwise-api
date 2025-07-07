@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DashboardResponse getDashboardDetailsByUser(String userId, String period) {
+    public DashboardResponse getDashboardDetailsByUser(String userId, String period, int pageNo, int pageSize) {
         try {
             YearMonth periodMonth = YearMonth.parse(period);
             LocalDate startDate = periodMonth.atDay(1);
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
             Instant startInstant = startDate.atStartOfDay(zoneId).toInstant();
             Instant endInstant = endDate.plusDays(1).atStartOfDay(zoneId).toInstant();
             User user = findById(userId);
-            PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+            PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
             List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(user, startInstant, endInstant, pageRequest);
             List<TransactionResponse> transactionResponses = transactions.stream().map(MapperUtil::transactionEntityToDto).toList();
             BigDecimal totalIncome = calculateTotal(transactions, TransactionType.CREDIT);

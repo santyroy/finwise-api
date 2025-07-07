@@ -10,5 +10,5 @@ public interface UserService {
     UserResponse findUserByEmail(String email);
     UserResponse updateUserByEmail(String email, UserRequest userRequest);
     void deleteUserByEmail(String email);
-    DashboardResponse getDashboardDetailsByUser(String userId, String period);
+    DashboardResponse getDashboardDetailsByUser(String userId, String period, int pageNo, int pageSize);
 }
