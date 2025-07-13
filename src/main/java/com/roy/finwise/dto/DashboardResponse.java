@@ -6,7 +6,7 @@ import java.util.List;
 public record DashboardResponse(
         BigDecimal totalIncomeThisMonth,
         BigDecimal totalExpenseThisMonth,
-        List<DashboardWallets> wallets,
+        List<DashboardWallet> wallets,
         List<TransactionResponse> recentTransactions
 ) {
 }

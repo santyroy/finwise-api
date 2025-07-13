@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
             BigDecimal totalIncome = calculateTotal(transactions, TransactionType.CREDIT);
             BigDecimal totalExpense = calculateTotal(transactions, TransactionType.DEBIT);
             List<Wallet> wallets = walletRepository.findByUser(user);
-            List<DashboardWallets> dashboardWallets = wallets.stream().map(wallet -> new DashboardWallets(wallet.getId().toString(), wallet.getName())).toList();
+            List<DashboardWallet> dashboardWallets = wallets.stream().map(wallet -> new DashboardWallet(wallet.getId().toString(), wallet.getName())).toList();
             return new DashboardResponse(totalIncome, totalExpense, dashboardWallets, transactionResponses);
         } catch (DateTimeParseException ex) {
             throw new InvalidPeriodException("Expected format YYYY-MM");
