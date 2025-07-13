@@ -22,4 +22,5 @@ public class TransactionResponse {
     private String description;
     private Set<String> tags;
     private Instant createdAt;
+    private DashboardWallet wallet;
 }

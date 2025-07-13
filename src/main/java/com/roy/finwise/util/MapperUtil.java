@@ -52,6 +52,7 @@ public class MapperUtil {
                 .description(transaction.getDescription())
                 .tags(transaction.getTags())
                 .createdAt(transaction.getCreatedAt())
+                .wallet(new DashboardWallet(transaction.getWallet().getId().toString(), transaction.getWallet().getName()))
                 .build();
     }
 
