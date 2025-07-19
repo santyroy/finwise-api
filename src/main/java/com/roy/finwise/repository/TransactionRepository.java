@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
@@ -18,4 +19,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @EntityGraph(attributePaths = {"category", "tags"})
     List<Transaction> findByUserAndCreatedAtBetween(User user, Instant startDate, Instant endDate, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"category", "tags"})
+    Optional<Transaction> findTransactionById(UUID id);
 }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -29,6 +30,7 @@ public class TransactionRequest {
     private String description;
     private Set<String> tags;
     private String walletId;
+    private Instant createdAt;
 
     @NotBlank(message = "UserId is mandatory")
     private String userId;

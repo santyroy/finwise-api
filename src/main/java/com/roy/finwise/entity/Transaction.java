@@ -33,7 +33,7 @@ public class Transaction {
     @ManyToOne
     private Category category;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Instant createdAt;
 
     private Instant updatedAt;

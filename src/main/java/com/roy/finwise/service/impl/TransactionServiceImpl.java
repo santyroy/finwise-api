@@ -91,6 +91,10 @@ public class TransactionServiceImpl implements TransactionService {
             Optional<Wallet> walletOpt = walletRepository.findById(UUID.fromString(transactionRequest.getWalletId()));
             walletOpt.ifPresent(existingTransaction::setWallet);
         }
+        if(transactionRequest.getCreatedAt() != null) {
+            existingTransaction.setCreatedAt(transactionRequest.getCreatedAt());
+            existingTransaction.setUpdatedAt(transactionRequest.getCreatedAt());
+        }
         Transaction updatedTransaction = transactionRepository.save(existingTransaction);
         return MapperUtil.transactionEntityToDto(updatedTransaction);
     }
@@ -102,7 +106,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private Transaction findByTransactionId(String transactionId) {
-        return transactionRepository.findById(UUID.fromString(transactionId))
+        return transactionRepository.findTransactionById(UUID.fromString(transactionId))
                 .orElseThrow(() -> {
                     log.error("Transaction with ID: {} does not exist", transactionId);
                     return new NotFoundException("Transaction with ID: " + transactionId + " not found");
