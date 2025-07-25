@@ -72,7 +72,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     private Wallet getWallet(String walletId) {
-        return walletRepository.findById(UUID.fromString(walletId))
+        return walletRepository.findWalletById(UUID.fromString(walletId))
                 .orElseThrow(() -> new NotFoundException("Wallet with ID: " + walletId + " not found"));
     }
 }
