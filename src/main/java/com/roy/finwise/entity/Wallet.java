@@ -7,9 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -32,7 +31,8 @@ public class Wallet {
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.PERSIST)
     @Builder.Default
-    private Set<Transaction> transactions = new HashSet<>();
+    @OrderBy("createdAt DESC")
+    private List<Transaction> transactions = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -43,16 +43,4 @@ public class Wallet {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Wallet wallet = (Wallet) o;
-        return Objects.equals(id, wallet.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }

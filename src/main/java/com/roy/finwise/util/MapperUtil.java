@@ -4,8 +4,7 @@ import com.roy.finwise.dto.*;
 import com.roy.finwise.entity.*;
 
 import java.time.Instant;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 public class MapperUtil {
 
@@ -66,8 +65,8 @@ public class MapperUtil {
     }
 
     public static WalletResponse walletEntityToDto(Wallet wallet) {
-        Set<TransactionResponse> transactions = wallet.getTransactions().stream()
-                .map(MapperUtil::transactionEntityToDto).collect(Collectors.toSet());
+        List<TransactionResponse> transactions = wallet.getTransactions().stream()
+                .map(MapperUtil::transactionEntityToDto).toList();
         return WalletResponse.builder()
                 .id(wallet.getId().toString())
                 .name(wallet.getName())
