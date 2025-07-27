@@ -1,5 +1,7 @@
 package com.roy.finwise.security.config;
 
+import com.roy.finwise.security.filter.CustomAccessDeniedHandler;
+import com.roy.finwise.security.filter.JwtAuthenticationEntryPoint;
 import com.roy.finwise.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +36,8 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     private final String[] csrfExcludeEndpoints = {"/api/v1/auth/**", "/api/v1/transactions/**", "/api/v1/wallets/**", "/api/v1/users/**"};
 
@@ -49,6 +53,11 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(configurer ->
+        {
+            configurer.authenticationEntryPoint(jwtAuthenticationEntryPoint); // Token is expired/invalid (401)
+            configurer.accessDeniedHandler(accessDeniedHandler); // User lacks required role RBAC (403)
+        });
         return http.build();
     }
 

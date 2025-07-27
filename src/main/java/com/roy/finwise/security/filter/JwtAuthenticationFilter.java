@@ -1,12 +1,14 @@
 package com.roy.finwise.security.filter;
 
 import com.roy.finwise.security.service.JwtService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -65,6 +67,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+        } catch (JwtException ex) {
+            logger.error("JWT exception during authentication", ex);
+            request.setAttribute("jwt_exception", ex);
+            throw new BadCredentialsException(ex.getMessage(), ex);
         } catch (Exception ex) {
             // Log the exception (optional)
             logger.error("Could not set user authentication in security context", ex);
