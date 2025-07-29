@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -78,6 +79,17 @@ public class TransactionController {
         Page<TransactionResponse> allTransactions = transactionService
                 .getAllTransactions(userId, pageNo, pageSize, direction, properties);
         return pagedResourcesAssembler.toModel(allTransactions);
+    }
+
+    @GetMapping("/users/{userId}/slice")
+    public ResponseEntity<Slice<TransactionResponse>> getAllTransactionsBySlice(@PathVariable String userId,
+                                                                                @RequestParam(defaultValue = "0") int pageNo,
+                                                                                @RequestParam(defaultValue = "10") int pageSize,
+                                                                                @RequestParam(defaultValue = "DESC") String direction,
+                                                                                @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(1).toString()}") String startDate,
+                                                                                @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().toString()}") String endDate) {
+        Slice<TransactionResponse> allTransactions = transactionService.getAllTransactionsBetweenDates(userId, pageNo, pageSize, direction, startDate, endDate);
+        return ResponseEntity.ok(allTransactions);
     }
 
     @PutMapping(value = "{transactionId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -11,12 +11,14 @@ import com.roy.finwise.service.TransactionService;
 import com.roy.finwise.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +33,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final CategoryRepository categoryRepository;
     private final WalletRepository walletRepository;
     private final UserServiceImpl userService;
+
+    private static final String CREATED_AT = "createdAt";
 
     @Override
     public TransactionResponse createTransaction(TransactionRequest transactionRequest) {
@@ -54,7 +58,7 @@ public class TransactionServiceImpl implements TransactionService {
         pageNo = Math.max(pageNo, 0);
         pageSize = Math.max(pageSize, 1);
         direction = direction.equalsIgnoreCase("ASC") ? "ASC" : "DESC";
-        properties = List.of("type", "amount", "createdAt", "tags").contains(properties) ? properties : "createdAt";
+        properties = List.of("type", "amount", CREATED_AT, "tags").contains(properties) ? properties : CREATED_AT;
 
         try {
             User user = userService.findById(userId);
@@ -103,6 +107,29 @@ public class TransactionServiceImpl implements TransactionService {
     public void deleteTransaction(String transactionId) {
         Transaction existingTransaction = findByTransactionId(transactionId);
         transactionRepository.delete(existingTransaction);
+    }
+
+    @Override
+    public Slice<TransactionResponse> getAllTransactionsBetweenDates(String userId, int pageNo, int pageSize,
+                                                                     String direction, String startDate, String endDate) {
+        pageNo = Math.max(pageNo, 0);
+        pageSize = Math.max(pageSize, 1);
+        direction = direction.equalsIgnoreCase("ASC") ? "ASC" : "DESC";
+
+        User user = userService.findById(userId);
+        try {
+            ZoneId zoneId = ZoneOffset.UTC;
+            LocalDate start = LocalDate.parse(startDate);
+            Instant startInstant = start.atStartOfDay(zoneId).toInstant();
+            LocalDate end = LocalDate.parse(endDate);
+            Instant endInstant = end.atStartOfDay(zoneId).toInstant();
+            Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.valueOf(direction), CREATED_AT));
+            Slice<Transaction> transactions = transactionRepository
+                    .findTransactionSliceByUserAndCreatedAtBetween(user, startInstant, endInstant, pageable);
+            return transactions.map(MapperUtil::transactionEntityToDto);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     private Transaction findByTransactionId(String transactionId) {
