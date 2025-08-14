@@ -1,9 +1,6 @@
 package com.roy.finwise.controller;
 
-import com.roy.finwise.dto.ApiResponse;
-import com.roy.finwise.dto.DashboardResponse;
-import com.roy.finwise.dto.UserRequest;
-import com.roy.finwise.dto.UserResponse;
+import com.roy.finwise.dto.*;
 import com.roy.finwise.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -58,6 +55,13 @@ public class UserController {
                                                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         DashboardResponse response = userService.getDashboardDetailsByUser(userId, period, pageNo, pageSize);
         return ResponseEntity.ok(new ApiResponse<>(true, "Dashboard data retrieval successful", response));
+    }
+
+    @GetMapping(value = "{userId}/analytics")
+    public ResponseEntity<ApiResponse<AnalyticsResponse>> getAnalyticsData(@PathVariable String userId,
+                                                                           @RequestParam(value = "period", defaultValue = "#{T(java.time.YearMonth).now().toString()}") String period) {
+        AnalyticsResponse response = userService.getAnalyticsDataByUser(userId, period);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Analytics data retrieval successful", response));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.roy.finwise.service;
 
+import com.roy.finwise.dto.AnalyticsResponse;
 import com.roy.finwise.dto.DashboardResponse;
 import com.roy.finwise.dto.UserRequest;
 import com.roy.finwise.dto.UserResponse;
@@ -11,4 +12,5 @@ public interface UserService {
     UserResponse updateUserByEmail(String email, UserRequest userRequest);
     void deleteUserByEmail(String email);
     DashboardResponse getDashboardDetailsByUser(String userId, String period, int pageNo, int pageSize);
+    AnalyticsResponse getAnalyticsDataByUser(String userId, String period);
 }

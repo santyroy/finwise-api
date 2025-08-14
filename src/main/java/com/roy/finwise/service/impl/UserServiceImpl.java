@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -115,6 +112,28 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public AnalyticsResponse getAnalyticsDataByUser(String userId, String period) {
+        try {
+            YearMonth periodMonth = YearMonth.parse(period);
+            LocalDate startDate = periodMonth.atDay(1);
+            LocalDate endDate = periodMonth.atEndOfMonth();
+            ZoneId zoneId = ZoneOffset.UTC;
+            Instant startInstant = startDate.atStartOfDay(zoneId).toInstant();
+            Instant endInstant = endDate.plusDays(1).atStartOfDay(zoneId).toInstant();
+            User user = findById(userId);
+
+            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(user, startInstant, endInstant);
+
+            TransactionAnalytics transactionAnalytics = getTransactionAnalytics(transactions);
+            CategoryAnalytics categoryAnalytics = getCategoryAnalytics(transactions);
+
+            return new AnalyticsResponse(transactionAnalytics, categoryAnalytics);
+        } catch (DateTimeParseException ex) {
+            throw new InvalidPeriodException("Expected format YYYY-MM");
+        }
+    }
+
     private User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> {
             log.error("User with email: {} does not exist", email);
@@ -134,6 +153,46 @@ public class UserServiceImpl implements UserService {
                 .filter(transaction -> transaction.getType().equals(type))
                 .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private TransactionAnalytics getTransactionAnalytics(List<Transaction> transactions) {
+        List<Transaction> incomeTransactions = transactions.stream().filter(transaction -> transaction.getType().equals(TransactionType.CREDIT)).toList();
+        List<TransactionResponse> incomes = incomeTransactions.stream().map(MapperUtil::transactionEntityToDto).toList();
+        List<Transaction> expenseTransactions = transactions.stream().filter(transaction -> transaction.getType().equals(TransactionType.DEBIT)).toList();
+        List<TransactionResponse> expenses = expenseTransactions.stream().map(MapperUtil::transactionEntityToDto).toList();
+        return new TransactionAnalytics(incomes, expenses);
+    }
+
+    private CategoryAnalytics getCategoryAnalytics(List<Transaction> transactions) {
+        Map<String, CategorySummary> categorySummaryMap = new HashMap<>();
+
+        for (Transaction tx : transactions) {
+            String name = tx.getCategory().getName();
+            categorySummaryMap.compute(name, (key, summary) -> {
+                if (summary == null) {
+                    return new CategorySummary(name, tx.getAmount());
+                } else {
+                    BigDecimal newTotal = summary.getTotalAmount().add(tx.getAmount());
+                    summary.setTotalAmount(newTotal);
+                    return summary;
+                }
+            });
+        }
+
+//        for (Transaction tx : transactions) {
+//            String name = tx.getCategory().getName();
+//            if (categorySummaryMap.containsKey(name)) {
+//                CategorySummary categorySummary = categorySummaryMap.get(name);
+//                BigDecimal oldAmount = categorySummary.getTotalAmount();
+//                BigDecimal newAmount = tx.getAmount().add(oldAmount);
+//                categorySummary.setTotalAmount(newAmount);
+//                categorySummaryMap.put(name, categorySummary);
+//            } else {
+//                categorySummaryMap.put(name, new CategorySummary(name, tx.getAmount()));
+//            }
+//        }
+
+        return new CategoryAnalytics(categorySummaryMap.values().stream().toList());
     }
 
     private String hashPassword(String password) {

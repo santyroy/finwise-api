@@ -25,5 +25,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     List<Transaction> findByUserAndCreatedAtBetween(User user, Instant startDate, Instant endDate, Pageable pageable);
 
     @EntityGraph(attributePaths = {"category", "tags"})
+    List<Transaction> findByUserAndCreatedAtBetween(User user, Instant startDate, Instant endDate);
+
+    @EntityGraph(attributePaths = {"category", "tags"})
     Optional<Transaction> findTransactionById(UUID id);
 }
