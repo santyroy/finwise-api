@@ -170,7 +170,7 @@ public class UserServiceImpl implements UserService {
             String name = tx.getCategory().getName();
             categorySummaryMap.compute(name, (key, summary) -> {
                 if (summary == null) {
-                    return new CategorySummary(name, tx.getAmount());
+                    return new CategorySummary(name, tx.getType(), tx.getAmount());
                 } else {
                     BigDecimal newTotal = summary.getTotalAmount().add(tx.getAmount());
                     summary.setTotalAmount(newTotal);
@@ -178,19 +178,6 @@ public class UserServiceImpl implements UserService {
                 }
             });
         }
-
-//        for (Transaction tx : transactions) {
-//            String name = tx.getCategory().getName();
-//            if (categorySummaryMap.containsKey(name)) {
-//                CategorySummary categorySummary = categorySummaryMap.get(name);
-//                BigDecimal oldAmount = categorySummary.getTotalAmount();
-//                BigDecimal newAmount = tx.getAmount().add(oldAmount);
-//                categorySummary.setTotalAmount(newAmount);
-//                categorySummaryMap.put(name, categorySummary);
-//            } else {
-//                categorySummaryMap.put(name, new CategorySummary(name, tx.getAmount()));
-//            }
-//        }
 
         return new CategoryAnalytics(categorySummaryMap.values().stream().toList());
     }
