@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
             Instant endInstant = endDate.plusDays(1).atStartOfDay(zoneId).toInstant();
             User user = findById(userId);
 
-            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(user, startInstant, endInstant);
+            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetweenOrderByCreatedAtDesc(user, startInstant, endInstant);
 
             TransactionAnalytics transactionAnalytics = getTransactionAnalytics(transactions);
             CategoryAnalytics categoryAnalytics = getCategoryAnalytics(transactions);
