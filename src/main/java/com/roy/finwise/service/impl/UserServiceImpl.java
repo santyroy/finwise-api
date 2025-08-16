@@ -178,8 +178,9 @@ public class UserServiceImpl implements UserService {
                 }
             });
         }
-
-        return new CategoryAnalytics(categorySummaryMap.values().stream().toList());
+        List<CategorySummary> categorySummaries = categorySummaryMap.values().stream()
+                .sorted((o1, o2) -> o2.getTotalAmount().compareTo(o1.getTotalAmount())).toList();
+        return new CategoryAnalytics(categorySummaries);
     }
 
     private String hashPassword(String password) {
