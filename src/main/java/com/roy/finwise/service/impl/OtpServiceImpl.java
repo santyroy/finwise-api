@@ -36,7 +36,7 @@ public class OtpServiceImpl implements OtpService {
         log.info("Saved OTP to database for email: {}", email);
 
         // Send email
-        emailService.sendEmail(otp, email, otpPurpose);
+        emailService.sendMimeEmail(otp, email, otpPurpose);
 
     }
 
