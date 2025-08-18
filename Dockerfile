@@ -1,5 +1,5 @@
-# Use an official Java runtime as the base image
-FROM openjdk:17-jdk-slim AS build
+# Stage 1: Build Stage with Maven
+FROM maven:3.8.4-openjdk-17-slim AS build
 
 # Set the working directory in the container
 WORKDIR /app
@@ -14,7 +14,7 @@ COPY src /app/src
 # Build the application with Maven
 RUN mvn clean package -DskipTests
 
-# Use an OpenJDK runtime as a base image for running the Spring Boot application
+# Stage 2: Runtime Stage with only OpenJDK
 FROM openjdk:17-jdk-slim
 
 # Set the working directory in the container
