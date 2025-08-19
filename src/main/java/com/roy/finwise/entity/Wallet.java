@@ -29,7 +29,7 @@ public class Wallet {
 
     private BigDecimal spendingLimits;
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @OrderBy("createdAt DESC")
     private List<Transaction> transactions = new ArrayList<>();
