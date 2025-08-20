@@ -47,6 +47,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.ignoringRequestMatchers(csrfExcludeEndpoints));
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
+            auth.requestMatchers("/actuator/health/**").permitAll();
             auth.anyRequest().authenticated();
         });
         http.sessionManagement(session ->
