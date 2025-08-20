@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -113,7 +114,7 @@ public class TransactionServiceImpl implements TransactionService {
     public Slice<TransactionResponse> getAllTransactionsBetweenDates(String userId, int pageNo, int pageSize,
                                                                      String direction, String startDate, String endDate) {
         pageNo = Math.max(pageNo, 0);
-        pageSize = Math.max(pageSize, 1);
+        pageSize = Math.max(pageSize, 10);
         direction = direction.equalsIgnoreCase("ASC") ? "ASC" : "DESC";
 
         User user = userService.findById(userId);
@@ -122,7 +123,7 @@ public class TransactionServiceImpl implements TransactionService {
             LocalDate start = LocalDate.parse(startDate);
             Instant startInstant = start.atStartOfDay(zoneId).toInstant();
             LocalDate end = LocalDate.parse(endDate);
-            Instant endInstant = end.atStartOfDay(zoneId).toInstant();
+            Instant endInstant = end.atStartOfDay(zoneId).toInstant().plus(1, ChronoUnit.DAYS);
             Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.valueOf(direction), CREATED_AT));
             Slice<Transaction> transactions = transactionRepository
                     .findTransactionSliceByUserAndCreatedAtBetween(user, startInstant, endInstant, pageable);
