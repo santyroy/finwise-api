@@ -100,8 +100,8 @@ public class UserServiceImpl implements UserService {
             Instant endInstant = endDate.plusDays(1).atStartOfDay(zoneId).toInstant();
             User user = findById(userId);
             PageRequest pageRequest = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
-            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetween(user, startInstant, endInstant, pageRequest);
-            List<TransactionResponse> transactionResponses = transactions.stream().map(MapperUtil::transactionEntityToDto).toList();
+            List<Transaction> transactions = transactionRepository.findByUserAndCreatedAtBetweenOrderByCreatedAtDesc(user, startInstant, endInstant);
+            List<TransactionResponse> transactionResponses = transactions.stream().map(MapperUtil::transactionEntityToDto).limit(10).toList();
             BigDecimal totalIncome = calculateTotal(transactions, TransactionType.CREDIT);
             BigDecimal totalExpense = calculateTotal(transactions, TransactionType.DEBIT);
             List<Wallet> wallets = walletRepository.findByUser(user);
